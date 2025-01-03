@@ -1,0 +1,38 @@
+header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+#subtitle {
+    margin: 0;
+    font-size: 0.9em;
+    color: #666;
+    font-style: italic;
+}
+
+/* User input section styles */
+#user-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    padding: 10px 0;
+}
+
+.user-input-text {
+    margin: 0;
+    padding: 5px 0;
+} 

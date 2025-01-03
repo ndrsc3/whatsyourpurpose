@@ -1,0 +1,139 @@
+.setup-image {
+    max-width: 200px;
+    height: auto;
+    display: block;
+    margin: 0 auto 2rem auto;
+    border-radius: 8px;
+}
+
+/* Common Auth Container Styles */
+#user-setup, #account-recovery {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--surface-color);
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Recovery Code Styles */
+.recovery-code-container {
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    margin: 2rem 0;
+    border: 2px solid var(--primary-color);
+}
+
+.recovery-code {
+    font-family: monospace;
+    font-size: 2em;
+    padding: 1rem;
+    margin: 1rem 0;
+    background-color: var(--background-color);
+    border-radius: 4px;
+    letter-spacing: 3px;
+    color: var(--primary-color);
+}
+
+/* Input Styles */
+#user-setup-form input, 
+#account-recovery input,
+.recovery-input {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 1rem auto;
+    padding: 12px;
+    font-size: 1.1em;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+}
+
+#user-setup-form input:focus,
+#account-recovery input:focus,
+.recovery-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Button Styles */
+#user-setup-form button,
+#account-recovery button,
+#recover-account {
+    background-color: var(--primary-color);
+    color: var(--surface-color);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+#user-setup-form button:hover,
+#account-recovery button:hover,
+#recover-account:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Recovery Link Styles */
+.recovery-link {
+    margin-top: 1rem;
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.recovery-link p {
+    margin: 0;
+}
+
+.recovery-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.recovery-link a:hover {
+    text-decoration: underline;
+}
+
+/* Warning and Message Styles */
+.recovery-warning {
+    color: var(--error-color);
+    font-weight: bold;
+    margin: 1rem 0;
+}
+
+.error {
+    color: var(--error-color);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.fun-question {
+    font-size: 1.1em;
+    color: var(--primary-color);
+    margin: 1rem 0;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+#recovery-code-container {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: var(--grid-bg-color);
+} 
+
