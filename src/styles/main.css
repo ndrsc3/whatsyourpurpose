@@ -8,6 +8,7 @@
 @import './components/purpose/questions-form.css';
 @import './components/purpose/needs-selection.css';
 @import './components/purpose/summary-view.css';
+@import './components/purpose/purpose-view.css';
 
 /* Theme Variables */
 :root {

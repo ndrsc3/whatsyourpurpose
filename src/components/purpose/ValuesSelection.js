@@ -4,15 +4,10 @@ import UserDataStore from '../../utils/userDataStore.js';
 export class ValuesSelection {
     constructor() {
         this.container = document.getElementById('values-selection');
-        this.selectedValues = new Set();
+        this.data = null;
+        this.updateCallback = null;
         this.maxSelections = 10;
         
-        // Load any previously selected values
-        const data = UserDataStore.getData();
-        if (data.values) {
-            this.selectedValues = new Set(data.values);
-        }
-
         this.values = [
             'Acceptance', 'Altruism', 'Ambition', 'Amusement', 'Beauty', 'Bravery', 
             'Brilliance', 'Challenge', 'Charity', 'Cleanliness', 'Competence', 'Comfort', 
@@ -24,13 +19,28 @@ export class ValuesSelection {
             'Teamwork', 'Thoughtfulness', 'Transparency', 'Sustainability', 'Trust', 
             'Uniqueness', 'Unity', 'Victory'
         ];
+    }
 
-        this.render();
+    initialize(updateCallback) {
+        this.updateCallback = updateCallback;
         this.bindEvents();
     }
 
+    setData(data) {
+        this.data = data;
+        this.render();
+    }
+
+    getSelectedValues() {
+        if (!this.container) return new Set();
+        const selectedButtons = this.container.querySelectorAll('.value-item.selected');
+        return new Set([...selectedButtons].map(button => button.dataset.value));
+    }
+
     render() {
-        if (!this.container) return;
+        if (!this.container || !this.data) return;
+
+        console.log('🔵 [ValuesSelection] Rendering with data:', this.data);
 
         const content = `
             <div class="values-header">
@@ -40,64 +50,62 @@ export class ValuesSelection {
             </div>
             <div class="values-grid">
                 ${this.values.map(value => `
-                    <button class="value-item" data-value="${value}">
+                    <button class="value-item ${this.data.values?.includes(value) ? 'selected' : ''}" 
+                            data-value="${value}">
                         ${value}
                     </button>
                 `).join('')}
             </div>
             <div class="values-footer">
-                <button id="values-continue" class="primary-button" disabled>
+                <button id="values-continue" class="primary-button" 
+                        ${(this.data.values?.length || 0) !== this.maxSelections ? 'disabled' : ''}>
                     Continue
                 </button>
             </div>
         `;
 
         this.container.innerHTML = content;
+        this.updateSelectionCount();
+    }
+
+    updateSelectionCount() {
+        const selectedCountSpan = this.container.querySelector('#selected-count');
+        const continueButton = this.container.querySelector('#values-continue');
+        const selectedCount = this.getSelectedValues().size;
+        
+        if (selectedCountSpan) {
+            selectedCountSpan.textContent = selectedCount;
+        }
+        if (continueButton) {
+            continueButton.disabled = selectedCount !== this.maxSelections;
+        }
     }
 
     bindEvents() {
         if (!this.container) return;
 
-        const valueButtons = this.container.querySelectorAll('.value-item');
-        const continueButton = this.container.querySelector('#values-continue');
-        const selectedCountSpan = this.container.querySelector('#selected-count');
-
-        // Mark previously selected values
-        valueButtons.forEach(button => {
-            if (this.selectedValues.has(button.dataset.value)) {
-                button.classList.add('selected');
-            }
-        });
-
-        // Update initial count
-        selectedCountSpan.textContent = this.selectedValues.size;
-        continueButton.disabled = this.selectedValues.size !== this.maxSelections;
-
-        valueButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const value = button.dataset.value;
+        this.container.addEventListener('click', (e) => {
+            // Handle value selection
+            if (e.target.classList.contains('value-item')) {
+                const selectedValues = this.getSelectedValues();
                 
-                if (button.classList.contains('selected')) {
-                    this.selectedValues.delete(value);
-                    button.classList.remove('selected');
-                } else if (this.selectedValues.size < this.maxSelections) {
-                    this.selectedValues.add(value);
-                    button.classList.add('selected');
+                if (e.target.classList.contains('selected')) {
+                    e.target.classList.remove('selected');
+                    selectedValues.delete(e.target.dataset.value);
+                } else if (selectedValues.size < this.maxSelections) {
+                    e.target.classList.add('selected');
+                    selectedValues.add(e.target.dataset.value);
                 }
 
-                // Update the count and continue button state
-                selectedCountSpan.textContent = this.selectedValues.size;
-                continueButton.disabled = this.selectedValues.size !== this.maxSelections;
-            });
-        });
-
-        continueButton.addEventListener('click', () => {
-            // Save the selected values using the data store
-            UserDataStore.updateValues([...this.selectedValues]);
+                this.updateSelectionCount();
+            }
             
-            // Hide values selection and show strengths selection
-            this.hide();
-            StrengthsSelection.show();
+            // Handle continue button
+            if (e.target.id === 'values-continue' && !e.target.disabled) {
+                const selectedValues = this.getSelectedValues();
+                const newData = { ...this.data, values: [...selectedValues] };
+                this.updateCallback(newData);
+            }
         });
     }
 

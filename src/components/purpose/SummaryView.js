@@ -1,17 +1,26 @@
-import UserDataStore from '../../utils/userDataStore.js';
+import PurposeView from './PurposeView.js';
 
 export class SummaryView {
     constructor() {
         this.container = document.getElementById('summary-view');
-        this.render();
+        this.data = null;
+        this.updateCallback = null;
+    }
+
+    initialize(updateCallback) {
+        this.updateCallback = updateCallback;
         this.bindEvents();
     }
 
-    render() {
-        if (!this.container) return;
+    setData(data) {
+        this.data = data;
+        this.render();
+    }
 
-        const userData = UserDataStore.getData();
-        console.log('Rendering summary with data:', userData);
+    render() {
+        if (!this.container || !this.data) return;
+
+        console.log('🔵 [SummaryView] Rendering with data:', this.data);
 
         const questions = [
             'What has been your proudest moment in your life so far? Why?',
@@ -21,10 +30,10 @@ export class SummaryView {
         ];
 
         // Ensure we have arrays for all data, even if empty
-        const values = Array.isArray(userData.values) ? userData.values : [];
-        const strengths = Array.isArray(userData.strengths) ? userData.strengths : [];
-        const reflectionAnswers = Array.isArray(userData.reflectionAnswers) ? userData.reflectionAnswers : [];
-        const needs = Array.isArray(userData.needs) ? userData.needs : [];
+        const values = Array.isArray(this.data.values) ? this.data.values : [];
+        const strengths = Array.isArray(this.data.strengths) ? this.data.strengths : [];
+        const reflectionAnswers = Array.isArray(this.data.reflectionAnswers) ? this.data.reflectionAnswers : [];
+        const needs = Array.isArray(this.data.needs) ? this.data.needs : [];
 
         const content = `
             <div class="summary-header">
@@ -61,7 +70,7 @@ export class SummaryView {
 
             <div class="summary-footer">
                 <button id="summary-continue" class="primary-button">
-                    Continue
+                    Generate Your Purpose
                 </button>
             </div>
         `;
@@ -72,18 +81,17 @@ export class SummaryView {
     bindEvents() {
         if (!this.container) return;
 
-        const continueButton = this.container.querySelector('#summary-continue');
-        
-        continueButton.addEventListener('click', () => {
-            this.hide();
-            // Next component will be shown here
+        this.container.addEventListener('click', (e) => {
+            if (e.target.id === 'summary-continue') {
+                // Set the flag to indicate we're ready to generate purpose
+                const newData = { ...this.data, readyToGeneratePurpose: true };
+                this.updateCallback(newData);
+            }
         });
     }
 
     show() {
         this.container.classList.remove('hidden');
-        // Re-render when showing to ensure we have the latest data
-        this.render();
     }
 
     hide() {

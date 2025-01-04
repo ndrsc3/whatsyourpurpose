@@ -4,14 +4,9 @@ import UserDataStore from '../../utils/userDataStore.js';
 export class StrengthsSelection {
     constructor() {
         this.container = document.getElementById('strengths-selection');
-        this.selectedStrengths = new Set();
+        this.data = null;
+        this.updateCallback = null;
         this.maxSelections = 10;
-        
-        // Load any previously selected strengths
-        const data = UserDataStore.getData();
-        if (data.strengths) {
-            this.selectedStrengths = new Set(data.strengths);
-        }
         
         this.strengths = [
             'Ambitious', 'Motivated', 'Decisive', 'Devoted', 'Determined', 'Enthusiastic', 
@@ -26,13 +21,28 @@ export class StrengthsSelection {
             'Proactive', 'Sensible', 'Sincere', 'Thoughtful', 'Versatile', 'Objective', 
             'Self-confident', 'Problem-Solving', 'Good at teaching', 'Good at designing'
         ];
+    }
 
-        this.render();
+    initialize(updateCallback) {
+        this.updateCallback = updateCallback;
         this.bindEvents();
     }
 
+    setData(data) {
+        this.data = data;
+        this.render();
+    }
+
+    getSelectedStrengths() {
+        if (!this.container) return new Set();
+        const selectedButtons = this.container.querySelectorAll('.strength-item.selected');
+        return new Set([...selectedButtons].map(button => button.dataset.strength));
+    }
+
     render() {
-        if (!this.container) return;
+        if (!this.container || !this.data) return;
+
+        console.log('🔵 [StrengthsSelection] Rendering with data:', this.data);
 
         const content = `
             <div class="strengths-header">
@@ -42,64 +52,62 @@ export class StrengthsSelection {
             </div>
             <div class="strengths-grid">
                 ${this.strengths.map(strength => `
-                    <button class="strength-item" data-strength="${strength}">
+                    <button class="strength-item ${this.data.strengths?.includes(strength) ? 'selected' : ''}" 
+                            data-strength="${strength}">
                         ${strength}
                     </button>
                 `).join('')}
             </div>
             <div class="strengths-footer">
-                <button id="strengths-continue" class="primary-button" disabled>
+                <button id="strengths-continue" class="primary-button" 
+                        ${(this.data.strengths?.length || 0) !== this.maxSelections ? 'disabled' : ''}>
                     Continue
                 </button>
             </div>
         `;
 
         this.container.innerHTML = content;
+        this.updateSelectionCount();
+    }
+
+    updateSelectionCount() {
+        const selectedCountSpan = this.container.querySelector('#selected-count');
+        const continueButton = this.container.querySelector('#strengths-continue');
+        const selectedCount = this.getSelectedStrengths().size;
+        
+        if (selectedCountSpan) {
+            selectedCountSpan.textContent = selectedCount;
+        }
+        if (continueButton) {
+            continueButton.disabled = selectedCount !== this.maxSelections;
+        }
     }
 
     bindEvents() {
         if (!this.container) return;
 
-        const strengthButtons = this.container.querySelectorAll('.strength-item');
-        const continueButton = this.container.querySelector('#strengths-continue');
-        const selectedCountSpan = this.container.querySelector('#selected-count');
-
-        // Mark previously selected strengths
-        strengthButtons.forEach(button => {
-            if (this.selectedStrengths.has(button.dataset.strength)) {
-                button.classList.add('selected');
-            }
-        });
-
-        // Update initial count
-        selectedCountSpan.textContent = this.selectedStrengths.size;
-        continueButton.disabled = this.selectedStrengths.size !== this.maxSelections;
-
-        strengthButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const strength = button.dataset.strength;
+        this.container.addEventListener('click', (e) => {
+            // Handle strength selection
+            if (e.target.classList.contains('strength-item')) {
+                const selectedStrengths = this.getSelectedStrengths();
                 
-                if (button.classList.contains('selected')) {
-                    this.selectedStrengths.delete(strength);
-                    button.classList.remove('selected');
-                } else if (this.selectedStrengths.size < this.maxSelections) {
-                    this.selectedStrengths.add(strength);
-                    button.classList.add('selected');
+                if (e.target.classList.contains('selected')) {
+                    e.target.classList.remove('selected');
+                    selectedStrengths.delete(e.target.dataset.strength);
+                } else if (selectedStrengths.size < this.maxSelections) {
+                    e.target.classList.add('selected');
+                    selectedStrengths.add(e.target.dataset.strength);
                 }
 
-                // Update the count and continue button state
-                selectedCountSpan.textContent = this.selectedStrengths.size;
-                continueButton.disabled = this.selectedStrengths.size !== this.maxSelections;
-            });
-        });
-
-        continueButton.addEventListener('click', () => {
-            // Save the selected strengths using the data store
-            UserDataStore.updateStrengths([...this.selectedStrengths]);
+                this.updateSelectionCount();
+            }
             
-            // Hide strengths selection and show questions form
-            this.hide();
-            QuestionsForm.show();
+            // Handle continue button
+            if (e.target.id === 'strengths-continue' && !e.target.disabled) {
+                const selectedStrengths = this.getSelectedStrengths();
+                const newData = { ...this.data, strengths: [...selectedStrengths] };
+                this.updateCallback(newData);
+            }
         });
     }
 

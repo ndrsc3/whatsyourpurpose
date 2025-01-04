@@ -39,4 +39,3 @@ Beauty, Communion, Ease, Equality, Harmony, Inspiration, Order
 
 #### Physical Wellbeing
 Air, Food, Movement/exercise, Rest/Sleep, Sexual Expression, Safety, Shelter, Touch, Water
-

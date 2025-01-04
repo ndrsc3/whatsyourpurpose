@@ -1,0 +1,88 @@
+.purpose-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.purpose-header h2 {
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.purpose-header p {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin: 0.5rem 0;
+}
+
+.purpose-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: var(--grid-bg-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.purpose-intro {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.purpose-intro p {
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.purpose-statement {
+    padding: 2rem;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.purpose-statement p {
+    color: var(--text-color);
+    font-size: 1.2rem;
+    line-height: 1.6;
+    text-align: center;
+    font-style: italic;
+}
+
+.purpose-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.error-message {
+    color: var(--error-color);
+    text-align: center;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .purpose-container {
+        padding: 1rem;
+        margin: 0 1rem;
+    }
+
+    .purpose-statement {
+        padding: 1rem;
+    }
+
+    .purpose-statement p {
+        font-size: 1.1rem;
+    }
+
+    .purpose-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .purpose-actions button {
+        width: 100%;
+        max-width: 300px;
+    }
+} 

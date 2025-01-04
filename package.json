@@ -12,6 +12,7 @@
     "@vercel/kv": "^0.2.4",
     "@vercel/node": "^2.5.0",
     "jsonwebtoken": "^9.0.2",
+    "openai": "^4.77.3",
     "ws": "^8.13.0"
   },
   "devDependencies": {

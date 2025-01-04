@@ -7,6 +7,8 @@ export class UserDataStore {
             strengths: [],
             reflectionAnswers: [],
             needs: [],
+            purposeStatement: null,
+            readyToGeneratePurpose: false,
             lastUpdated: null
         };
     }
@@ -14,7 +16,7 @@ export class UserDataStore {
     static getData() {
         const data = localStorage.getItem(this.STORAGE_KEY);
         const parsedData = data ? JSON.parse(data) : this.getDefaultData();
-        console.log('Retrieved data from storage:', parsedData);
+        console.log('🔵 [UserDataStore] Fetching data from localStorage:', parsedData);
         return parsedData;
     }
 
@@ -52,6 +54,13 @@ export class UserDataStore {
         this.saveData(data);
     }
 
+    static updatePurposeStatement(purposeStatement) {
+        console.log('Updating purpose statement:', purposeStatement);
+        const data = this.getData();
+        data.purposeStatement = purposeStatement;
+        this.saveData(data);
+    }
+
     static clearData() {
         localStorage.removeItem(this.STORAGE_KEY);
     }
@@ -74,6 +83,11 @@ export class UserDataStore {
     static hasCompletedNeeds() {
         const data = this.getData();
         return Array.isArray(data.needs) && data.needs.length === 10;
+    }
+
+    static hasPurposeStatement() {
+        const data = this.getData();
+        return !!data.purposeStatement;
     }
 }
 

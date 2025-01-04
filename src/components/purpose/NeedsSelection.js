@@ -4,14 +4,9 @@ import UserDataStore from '../../utils/userDataStore.js';
 export class NeedsSelection {
     constructor() {
         this.container = document.getElementById('needs-selection');
-        this.selectedNeeds = new Set();
+        this.data = null;
+        this.updateCallback = null;
         this.maxSelections = 10;
-        
-        // Load any previously selected needs
-        const data = UserDataStore.getData();
-        if (data.needs) {
-            this.selectedNeeds = new Set(data.needs);
-        }
         
         this.needsCategories = {
             'Sustainable Development Goals': [
@@ -46,13 +41,28 @@ export class NeedsSelection {
                 ]
             }
         };
+    }
 
-        this.render();
+    initialize(updateCallback) {
+        this.updateCallback = updateCallback;
         this.bindEvents();
     }
 
+    setData(data) {
+        this.data = data;
+        this.render();
+    }
+
+    getSelectedNeeds() {
+        if (!this.container) return new Set();
+        const selectedButtons = this.container.querySelectorAll('.need-item.selected');
+        return new Set([...selectedButtons].map(button => button.dataset.need));
+    }
+
     render() {
-        if (!this.container) return;
+        if (!this.container || !this.data) return;
+
+        console.log('🔵 [NeedsSelection] Rendering with data:', this.data);
 
         const content = `
             <div class="needs-header">
@@ -66,7 +76,8 @@ export class NeedsSelection {
                     <h3>Sustainable Development Goals</h3>
                     <div class="needs-grid">
                         ${this.needsCategories['Sustainable Development Goals'].map(need => `
-                            <button class="need-item" data-need="${need}">
+                            <button class="need-item ${this.data.needs?.includes(need) ? 'selected' : ''}" 
+                                    data-need="${need}">
                                 ${need}
                             </button>
                         `).join('')}
@@ -80,7 +91,8 @@ export class NeedsSelection {
                             <h4>${subcategory}</h4>
                             <div class="needs-grid">
                                 ${needs.map(need => `
-                                    <button class="need-item" data-need="${need}">
+                                    <button class="need-item ${this.data.needs?.includes(need) ? 'selected' : ''}" 
+                                            data-need="${need}">
                                         ${need}
                                     </button>
                                 `).join('')}
@@ -91,58 +103,55 @@ export class NeedsSelection {
             </div>
 
             <div class="needs-footer">
-                <button id="needs-continue" class="primary-button" disabled>
+                <button id="needs-continue" class="primary-button" 
+                        ${(this.data.needs?.length || 0) !== this.maxSelections ? 'disabled' : ''}>
                     Continue
                 </button>
             </div>
         `;
 
         this.container.innerHTML = content;
+        this.updateSelectionCount();
+    }
+
+    updateSelectionCount() {
+        const selectedCountSpan = this.container.querySelector('#selected-count');
+        const continueButton = this.container.querySelector('#needs-continue');
+        const selectedCount = this.getSelectedNeeds().size;
+        
+        if (selectedCountSpan) {
+            selectedCountSpan.textContent = selectedCount;
+        }
+        if (continueButton) {
+            continueButton.disabled = selectedCount !== this.maxSelections;
+        }
     }
 
     bindEvents() {
         if (!this.container) return;
 
-        const needButtons = this.container.querySelectorAll('.need-item');
-        const continueButton = this.container.querySelector('#needs-continue');
-        const selectedCountSpan = this.container.querySelector('#selected-count');
-
-        // Mark previously selected needs
-        needButtons.forEach(button => {
-            if (this.selectedNeeds.has(button.dataset.need)) {
-                button.classList.add('selected');
-            }
-        });
-
-        // Update initial count
-        selectedCountSpan.textContent = this.selectedNeeds.size;
-        continueButton.disabled = this.selectedNeeds.size !== this.maxSelections;
-
-        needButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const need = button.dataset.need;
+        this.container.addEventListener('click', (e) => {
+            // Handle need selection
+            if (e.target.classList.contains('need-item')) {
+                const selectedNeeds = this.getSelectedNeeds();
                 
-                if (button.classList.contains('selected')) {
-                    this.selectedNeeds.delete(need);
-                    button.classList.remove('selected');
-                } else if (this.selectedNeeds.size < this.maxSelections) {
-                    this.selectedNeeds.add(need);
-                    button.classList.add('selected');
+                if (e.target.classList.contains('selected')) {
+                    e.target.classList.remove('selected');
+                    selectedNeeds.delete(e.target.dataset.need);
+                } else if (selectedNeeds.size < this.maxSelections) {
+                    e.target.classList.add('selected');
+                    selectedNeeds.add(e.target.dataset.need);
                 }
 
-                // Update the count and continue button state
-                selectedCountSpan.textContent = this.selectedNeeds.size;
-                continueButton.disabled = this.selectedNeeds.size !== this.maxSelections;
-            });
-        });
-
-        continueButton.addEventListener('click', () => {
-            // Save the selected needs using the data store
-            UserDataStore.updateNeeds([...this.selectedNeeds]);
+                this.updateSelectionCount();
+            }
             
-            // Hide needs selection and show summary view
-            this.hide();
-            SummaryView.show();
+            // Handle continue button
+            if (e.target.id === 'needs-continue' && !e.target.disabled) {
+                const selectedNeeds = this.getSelectedNeeds();
+                const newData = { ...this.data, needs: [...selectedNeeds] };
+                this.updateCallback(newData);
+            }
         });
     }
 
