@@ -3,6 +3,11 @@
 @import './components/common/theme-toggle.css';
 @import './components/common/header.css';
 @import './components/auth/auth.css';
+@import './components/purpose/values-selection.css';
+@import './components/purpose/strengths-selection.css';
+@import './components/purpose/questions-form.css';
+@import './components/purpose/needs-selection.css';
+@import './components/purpose/summary-view.css';
 
 /* Theme Variables */
 :root {
