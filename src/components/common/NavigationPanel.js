@@ -1,3 +1,5 @@
+import Modal from './Modal.js';
+
 export class NavigationPanel {
     constructor() {
         // Create navigation panel
@@ -34,6 +36,30 @@ export class NavigationPanel {
         this.render();
     }
 
+    bindEvents() {
+        if (!this.container) return;
+
+        this.container.addEventListener('click', (e) => {
+            // Handle close button click
+            if (e.target.classList.contains('nav-close-button')) {
+                this.closePanel();
+                return;
+            }
+
+            // Handle navigation item clicks - check for closest nav-item
+            const navItem = e.target.closest('.nav-item');
+            if (navItem) {
+                this.handleNavItemClick({ target: navItem });
+            }
+        });
+
+        // Handle toggle button
+        const toggleButton = document.getElementById('nav-toggle');
+        if (toggleButton) {
+            toggleButton.addEventListener('click', () => this.handleToggleClick());
+        }
+    }
+
     handleToggleClick() {
         this.container.classList.toggle('collapsed');
         document.getElementById('nav-toggle').classList.toggle('active');
@@ -46,6 +72,58 @@ export class NavigationPanel {
         this.overlay.classList.remove('active');
     }
 
+    checkForUnsavedChanges(section) {
+        if (!this.data) return false;
+
+        const currentSection = this.data.currentSection;
+        if (!currentSection) return false;
+
+        // Check for unsaved changes based on section
+        switch (currentSection) {
+            case 'values': {
+                const selectedElements = document.querySelectorAll('#values-selection .value-item.selected');
+                const selectedValues = Array.from(selectedElements).map(el => el.dataset.value);
+                const savedValues = this.data.values || [];
+                
+                // Only check for differences if we have 10 selected
+                if (selectedValues.length === 10) {
+                    return !selectedValues.every(value => savedValues.includes(value)) || 
+                           !savedValues.every(value => selectedValues.includes(value));
+                }
+                return selectedValues.length !== savedValues.length;
+            }
+            
+            case 'strengths': {
+                const selectedElements = document.querySelectorAll('#strengths-selection .strength-item.selected');
+                const selectedStrengths = Array.from(selectedElements).map(el => el.dataset.strength);
+                const savedStrengths = this.data.strengths || [];
+                
+                // Only check for differences if we have 10 selected
+                if (selectedStrengths.length === 10) {
+                    return !selectedStrengths.every(value => savedStrengths.includes(value)) || 
+                           !savedStrengths.every(value => selectedStrengths.includes(value));
+                }
+                return selectedStrengths.length !== savedStrengths.length;
+            }
+            
+            case 'needs': {
+                const selectedElements = document.querySelectorAll('#needs-selection .need-item.selected');
+                const selectedNeeds = Array.from(selectedElements).map(el => el.dataset.need);
+                const savedNeeds = this.data.needs || [];
+                
+                // Only check for differences if we have 10 selected
+                if (selectedNeeds.length === 10) {
+                    return !selectedNeeds.every(value => savedNeeds.includes(value)) || 
+                           !savedNeeds.every(value => selectedNeeds.includes(value));
+                }
+                return selectedNeeds.length !== savedNeeds.length;
+            }
+            
+            default:
+                return false;
+        }
+    }
+
     handleNavItemClick(e) {
         const navItem = e.target.closest('.nav-item');
         if (navItem && this.data) {
@@ -53,6 +131,59 @@ export class NavigationPanel {
             console.log('🔵 [NavigationPanel] Nav item clicked:', section);
             
             if (section) {
+                if (this.checkForUnsavedChanges(section)) {
+                    const selectedCount = document.querySelectorAll(`#${this.data.currentSection}-selection .${this.data.currentSection.slice(0, -1)}-item.selected`).length;
+                    
+                    if (selectedCount === 10) {
+                        // Case A: User has selected required amount but hasn't saved
+                        Modal.show({
+                            title: 'Save Changes?',
+                            message: 'You have made changes to your selections. Would you like to save them before continuing?',
+                            buttons: [
+                                {
+                                    text: 'Save & Continue',
+                                    type: 'primary-button',
+                                    onClick: () => {
+                                        // Trigger save by clicking the continue button
+                                        const continueButton = document.querySelector(`#${this.data.currentSection}-continue`);
+                                        if (continueButton) {
+                                            continueButton.click();
+                                            this.closePanel(); // Close the navigation panel after saving
+                                        }
+                                    }
+                                },
+                                {
+                                    text: 'Discard Changes',
+                                    onClick: () => {
+                                        const newData = {
+                                            ...this.data,
+                                            currentSection: section,
+                                            isNavigating: true
+                                        };
+                                        this.updateCallback(newData);
+                                    }
+                                }
+                            ]
+                        });
+                    } else {
+                        // Case B: User hasn't selected required amount
+                        Modal.show({
+                            title: 'Incomplete Selection',
+                            message: `Please select ${10 - selectedCount} more items to complete this section.`,
+                            buttons: [
+                                {
+                                    text: 'Continue Selecting',
+                                    type: 'primary-button',
+                                    onClick: () => {
+                                        this.closePanel(); // Close the navigation panel
+                                    }
+                                }
+                            ]
+                        });
+                    }
+                    return;
+                }
+
                 const newData = {
                     ...this.data,
                     currentSection: section,
@@ -64,64 +195,18 @@ export class NavigationPanel {
         }
     }
 
-    bindEvents() {
-        
-        // Remove any existing event listeners
-        const toggleButton = document.getElementById('nav-toggle');
-        if (toggleButton) {
-            toggleButton.removeEventListener('click', this.handleToggleClick);
-            toggleButton.addEventListener('click', this.handleToggleClick);
-        }
-
-        this.container.removeEventListener('click', this.handleNavItemClick);
-        this.container.addEventListener('click', this.handleNavItemClick);
-    }
-
-    getSectionSummary(section) {
-        if (!this.data) return '';
-
-        switch (section) {
-            case 'values':
-                return this.data.values ? 
-                    `Selected: ${this.data.values.slice(0, 2).join(', ')}${this.data.values.length > 2 ? '...' : ''}` : 
-                    'Not completed';
-            case 'strengths':
-                return this.data.strengths ? 
-                    `Selected: ${this.data.strengths.slice(0, 2).join(', ')}${this.data.strengths.length > 2 ? '...' : ''}` : 
-                    'Not completed';
-            case 'reflections':
-                return this.data.reflectionAnswers ? 
-                    'Reflections completed' : 
-                    'Not completed';
-            case 'needs':
-                return this.data.needs ? 
-                    `Selected: ${this.data.needs.slice(0, 2).join(', ')}${this.data.needs.length > 2 ? '...' : ''}` : 
-                    'Not completed';
-            case 'summary':
-                return this.data.readyToGeneratePurpose ? 
-                    'Ready for purpose generation' : 
-                    'Review your selections';
-            case 'purpose':
-                return this.data.purposeStatement ? 
-                    'Purpose statement generated' : 
-                    'Generate your purpose';
-            default:
-                return '';
-        }
-    }
-
     getCompletionStatus(section) {
         if (!this.data) return false;
 
         switch (section) {
             case 'values':
-                return Array.isArray(this.data.values) && this.data.values.length > 0;
+                return Array.isArray(this.data.values) && this.data.values.length === 10;
             case 'strengths':
-                return Array.isArray(this.data.strengths) && this.data.strengths.length > 0;
+                return Array.isArray(this.data.strengths) && this.data.strengths.length === 10;
             case 'reflections':
                 return Array.isArray(this.data.reflectionAnswers) && this.data.reflectionAnswers.length === 4;
             case 'needs':
-                return Array.isArray(this.data.needs) && this.data.needs.length > 0;
+                return Array.isArray(this.data.needs) && this.data.needs.length === 10;
             case 'summary':
                 return this.data.readyToGeneratePurpose;
             case 'purpose':
@@ -146,7 +231,7 @@ export class NavigationPanel {
         const content = `
             <div class="nav-header">
                 <h3>Progress</h3>
-                <button class="nav-close-button" onclick="this.closest('#navigation-panel').querySelector('.nav-close-button').click()">×</button>
+                <button class="nav-close-button">x</button>
             </div>
             <div class="nav-sections">
                 ${sections.map(section => `
@@ -158,18 +243,13 @@ export class NavigationPanel {
                                 ${this.getCompletionStatus(section.id) ? '✓' : '○'}
                             </span>
                         </div>
+                        
                     </div>
                 `).join('')}
             </div>
         `;
 
         this.container.innerHTML = content;
-
-        // Add event listener to close button
-        const closeButton = this.container.querySelector('.nav-close-button');
-        if (closeButton) {
-            closeButton.addEventListener('click', this.closePanel);
-        }
     }
 }
 
