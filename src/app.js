@@ -1,4 +1,5 @@
 import ThemeToggle from './components/common/ThemeToggle.js';
+import NavigationPanel from './components/common/NavigationPanel.js';
 import UserSetup from './components/auth/UserSetup.js';
 import AccountRecovery from './components/auth/AccountRecovery.js';
 import Footer from './components/common/Footer.js';
@@ -14,6 +15,17 @@ class App {
     constructor() {
         this.userData = null;
         this.currentStep = 'unknown';
+        
+        // Map section IDs to component names
+        this.sectionToComponent = {
+            'values': 'valuesSelection',
+            'strengths': 'strengthsSelection',
+            'reflections': 'questionsForm',
+            'needs': 'needsSelection',
+            'summary': 'summaryView',
+            'purpose': 'purposeView'
+        };
+        
         this.components = {
             valuesSelection: ValuesSelection,
             strengthsSelection: StrengthsSelection,
@@ -22,6 +34,9 @@ class App {
             summaryView: SummaryView,
             purposeView: PurposeView
         };
+
+        // Initialize navigation panel
+        NavigationPanel.initialize(this.updateData.bind(this));
 
         // Bind methods
         this.initialize = this.initialize.bind(this);
@@ -45,20 +60,30 @@ class App {
     transition(fromStep, toStep) {
         console.log(`🔵 [App] Transitioning from ${fromStep} to ${toStep}`);
         
+        // Convert section ID to component name if needed
+        const fromComponent = this.components[this.sectionToComponent[fromStep] || fromStep];
+        const toComponent = this.components[this.sectionToComponent[toStep] || toStep];
+        
         // Hide current component
-        const fromComponent = this.components[`${fromStep}View`] || this.components[fromStep];
         if (fromComponent) {
             fromComponent.hide();
         }
 
         // Show next component
-        const toComponent = this.components[`${toStep}View`] || this.components[toStep];
         if (toComponent) {
             toComponent.setData?.(this.userData);
             toComponent.show();
+        } else {
+            console.error('🔴 [App] Component not found for step:', toStep);
         }
 
         this.currentStep = toStep;
+        
+        // Update navigation panel
+        NavigationPanel.setData({
+            ...this.userData,
+            currentSection: toStep
+        });
     }
 
     hasCompletedValues() {
@@ -84,7 +109,16 @@ class App {
     updateData(newData) {
         this.userData = newData;
         UserDataStore.saveData(newData);
-        this.determineStep();
+        
+        // Update navigation panel
+        NavigationPanel.setData(newData);
+        
+        if (newData.isNavigating) {
+            this.transition(this.currentStep, newData.currentSection);
+        } else {
+            this.determineStep();
+        }
+        
         this.logAppState();
     }
 
@@ -93,13 +127,13 @@ class App {
 
         // Determine which component to show
         if (!this.hasCompletedValues()) {
-            nextStep = 'valuesSelection';
+            nextStep = 'values';
         } else if (!this.hasCompletedStrengths()) {
-            nextStep = 'strengthsSelection';
+            nextStep = 'strengths';
         } else if (!this.hasCompletedReflections()) {
-            nextStep = 'questionsForm';
+            nextStep = 'reflections';
         } else if (!this.hasCompletedNeeds()) {
-            nextStep = 'needsSelection';
+            nextStep = 'needs';
         } else if (this.userData?.readyToGeneratePurpose || this.hasPurposeStatement()) {
             nextStep = 'purpose';
         } else {
@@ -114,10 +148,12 @@ class App {
     }
 
     showComponent(componentName) {
-        const component = this.components[componentName];
+        const component = this.components[this.sectionToComponent[componentName] || componentName];
         if (component) {
             component.setData?.(this.userData);
             component.show();
+        } else {
+            console.error('🔴 [App] Component not found:', componentName);
         }
     }
 

@@ -57,7 +57,7 @@ export class QuestionsForm {
 
         const content = `
             <div class="questions-header">
-                <h2>Reflect on Your Journey</h2>
+                <h3>Reflect on Your Journey</h3>
                 <p>Take your time to thoughtfully answer these questions</p>
             </div>
             <div class="questions-container">
@@ -76,7 +76,7 @@ export class QuestionsForm {
             </div>
             <div class="questions-footer">
                 <button id="questions-continue" class="primary-button">
-                    Continue
+                    Save
                 </button>
             </div>
         `;
@@ -111,12 +111,15 @@ export class QuestionsForm {
         });
 
         this.container.addEventListener('click', (e) => {
-            if (e.target.id === 'questions-continue') {
-                if (this.validateAnswers()) {
-                    const answers = this.getAnswers();
-                    const newData = { ...this.data, reflectionAnswers: answers };
-                    this.updateCallback(newData);
-                }
+            if (e.target.id === 'questions-continue' && !e.target.disabled) {
+                const answers = this.getAnswers();
+                const newData = {
+                    ...this.data,
+                    reflectionAnswers: answers,
+                    currentSection: 'needs',
+                    isNavigating: true
+                };
+                this.updateCallback(newData);
             }
         });
     }

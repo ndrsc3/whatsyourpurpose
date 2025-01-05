@@ -46,7 +46,7 @@ export class StrengthsSelection {
 
         const content = `
             <div class="strengths-header">
-                <h2>Select Your Key Strengths</h2>
+                <h3>Select Your Key Strengths</h3>
                 <p>Choose ${this.maxSelections} strengths that best describe you</p>
                 <p class="selection-count">Selected: <span id="selected-count">0</span>/${this.maxSelections}</p>
             </div>
@@ -61,7 +61,7 @@ export class StrengthsSelection {
             <div class="strengths-footer">
                 <button id="strengths-continue" class="primary-button" 
                         ${(this.data.strengths?.length || 0) !== this.maxSelections ? 'disabled' : ''}>
-                    Continue
+                    Save
                 </button>
             </div>
         `;
@@ -105,7 +105,12 @@ export class StrengthsSelection {
             // Handle continue button
             if (e.target.id === 'strengths-continue' && !e.target.disabled) {
                 const selectedStrengths = this.getSelectedStrengths();
-                const newData = { ...this.data, strengths: [...selectedStrengths] };
+                const newData = {
+                    ...this.data,
+                    strengths: [...selectedStrengths],
+                    currentSection: 'reflections',
+                    isNavigating: true
+                };
                 this.updateCallback(newData);
             }
         });

@@ -37,7 +37,7 @@ export class SummaryView {
 
         const content = `
             <div class="summary-header">
-                <h2>Your Purpose Journey Summary</h2>
+                <h3>Your Purpose Journey Summary</h3>
                 <p>Here's what we've learned about you</p>
             </div>
             
@@ -70,7 +70,7 @@ export class SummaryView {
 
             <div class="summary-footer">
                 <button id="summary-continue" class="primary-button">
-                    Generate Your Purpose
+                    Continue
                 </button>
             </div>
         `;
@@ -82,9 +82,13 @@ export class SummaryView {
         if (!this.container) return;
 
         this.container.addEventListener('click', (e) => {
-            if (e.target.id === 'summary-continue') {
-                // Set the flag to indicate we're ready to generate purpose
-                const newData = { ...this.data, readyToGeneratePurpose: true };
+            if (e.target.id === 'summary-continue' && !e.target.disabled) {
+                const newData = {
+                    ...this.data,
+                    readyToGeneratePurpose: true,
+                    currentSection: 'purpose',
+                    isNavigating: true
+                };
                 this.updateCallback(newData);
             }
         });

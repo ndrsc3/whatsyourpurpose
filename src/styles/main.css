@@ -1,6 +1,7 @@
 /* Import component styles */
 @import './components/common/footer.css';
 @import './components/common/theme-toggle.css';
+@import './components/common/navigation-panel.css';
 @import './components/common/header.css';
 @import './components/auth/auth.css';
 @import './components/purpose/values-selection.css';
@@ -92,4 +93,26 @@ h1 {
     display: block;
     margin: 0 auto 2rem auto;
     border-radius: 8px;
+}
+
+/* Common footer and action button styles */
+.view-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem 0;
+    position: relative;
+}
+
+.error-message {
+    color: var(--error-color);
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.selection-count {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
 }

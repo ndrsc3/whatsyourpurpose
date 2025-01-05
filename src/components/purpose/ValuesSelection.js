@@ -59,7 +59,7 @@ export class ValuesSelection {
             <div class="values-footer">
                 <button id="values-continue" class="primary-button" 
                         ${(this.data.values?.length || 0) !== this.maxSelections ? 'disabled' : ''}>
-                    Continue
+                    Save
                 </button>
             </div>
         `;
@@ -103,7 +103,12 @@ export class ValuesSelection {
             // Handle continue button
             if (e.target.id === 'values-continue' && !e.target.disabled) {
                 const selectedValues = this.getSelectedValues();
-                const newData = { ...this.data, values: [...selectedValues] };
+                const newData = {
+                    ...this.data,
+                    values: [...selectedValues],
+                    currentSection: 'strengths',
+                    isNavigating: true
+                };
                 this.updateCallback(newData);
             }
         });

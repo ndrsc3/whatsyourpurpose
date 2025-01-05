@@ -1,0 +1,136 @@
+.navigation-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: var(--surface-color);
+    border-right: 1px solid var(--border-color);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    transform: translateX(0);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+    opacity: 1;
+    backdrop-filter: blur(8px);
+}
+
+.navigation-panel.collapsed {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+/* Add overlay when panel is open */
+.nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+    backdrop-filter: blur(2px);
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.nav-header {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-header h3 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.2em;
+}
+
+.nav-close-button {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, color 0.2s ease;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.nav-close-button:hover {
+    transform: scale(1.1);
+    color: var(--primary-color);
+    background: var(--grid-bg-color);
+}
+
+.nav-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-item {
+    padding: 15px;
+    border-radius: 8px;
+    background: var(--grid-bg-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+    background: var(--header-bg-color);
+    transform: translateX(5px);
+}
+
+.nav-item.active {
+    background: var(--primary-color-light);
+    border-left: 4px solid var(--primary-color);
+}
+
+.nav-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.nav-item-name {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.nav-item-status {
+    font-size: 1.2em;
+    color: var(--text-color-light);
+}
+
+.nav-item-status.completed {
+    color: var(--primary-color);
+}
+
+.nav-item-summary {
+    font-size: 0.9em;
+    color: var(--text-color-light);
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .navigation-panel {
+        width: 280px;
+    }
+} 

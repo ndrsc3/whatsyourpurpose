@@ -66,7 +66,7 @@ export class NeedsSelection {
 
         const content = `
             <div class="needs-header">
-                <h2>Select Human Needs You Can Address</h2>
+                <h3>Select Human Needs You Can Address</h3>
                 <p>Based on your strengths & values, what are human needs that you think you can address well?</p>
                 <p class="selection-count">Selected: <span id="selected-count">0</span>/${this.maxSelections}</p>
             </div>
@@ -105,7 +105,7 @@ export class NeedsSelection {
             <div class="needs-footer">
                 <button id="needs-continue" class="primary-button" 
                         ${(this.data.needs?.length || 0) !== this.maxSelections ? 'disabled' : ''}>
-                    Continue
+                    Save
                 </button>
             </div>
         `;
@@ -149,7 +149,12 @@ export class NeedsSelection {
             // Handle continue button
             if (e.target.id === 'needs-continue' && !e.target.disabled) {
                 const selectedNeeds = this.getSelectedNeeds();
-                const newData = { ...this.data, needs: [...selectedNeeds] };
+                const newData = {
+                    ...this.data,
+                    needs: [...selectedNeeds],
+                    currentSection: 'summary',
+                    isNavigating: true
+                };
                 this.updateCallback(newData);
             }
         });
