@@ -1,4 +1,5 @@
 import { generateDeviceFingerprint } from '../../utils/deviceUtils.js';
+import App from '../../app.js';
 
 export class AccountRecovery {
     constructor() {
@@ -82,12 +83,14 @@ export class AccountRecovery {
             // Store in localStorage
             localStorage.setItem('dev_authTokens', JSON.stringify(authData));
 
-            // Update UI
+            // Update UI and initialize app
             this.container.classList.add('hidden');
             document.getElementById('recovery-code-display').classList.add('hidden');
             document.getElementById('user-setup').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
 
+            // Initialize the app
+            App.initializeApp();
 
             console.debug('🔵 [User] Account recovered successfully:', {
                 username: this.username,

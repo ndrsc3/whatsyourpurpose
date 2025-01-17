@@ -37,10 +37,10 @@
 .purpose-statement {
     position: relative;
     padding: 2rem;
-    padding-bottom: 4rem;
-    background-color: var(--surface-color);
-    border-radius: 8px;
+    background: var(--surface-color);
+    border-radius: 1rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
 }
 
 .purpose-statement p {
@@ -91,6 +91,20 @@
     color: var(--error-color);
     text-align: center;
     margin-top: 1rem;
+}
+
+.update-notice {
+    background: var(--highlight-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.update-notice p {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    font-weight: 500;
 }
 
 @media (max-width: 768px) {

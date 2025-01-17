@@ -1,4 +1,5 @@
 import { generateDeviceFingerprint } from '../../utils/deviceUtils.js';
+import App from '../../app.js';
 
 export class UserSetup {
 
@@ -155,8 +156,13 @@ export class UserSetup {
             document.getElementById('main-app').classList.remove('hidden');
             document.getElementById('current-username').textContent = this.username;
 
-            // Load initial data
-            await this.fetchUserData();
+            // Initialize the app
+            App.initializeApp();
+
+            console.debug('🔵 [User] User setup completed successfully:', {
+                username: this.username,
+                userId: this.userId
+            });
         } catch (error) {
             console.error('🔴 [User] Error saving username:', error);
             this.showError('Failed to save username. Please try again.');
@@ -166,6 +172,13 @@ export class UserSetup {
 
     async refreshAccessToken() {
         try {
+            // Get current auth data
+            const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
+            if (!authData?.refreshToken) {
+                throw new Error('No refresh token available');
+            }
+            this.refreshToken = authData.refreshToken;
+
             const response = await fetch('/api/auth/refresh', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -177,7 +190,15 @@ export class UserSetup {
             }
 
             const { accessToken } = await response.json();
+            
+            // Update instance and localStorage
             this.accessToken = accessToken;
+            const updatedAuthData = {
+                ...authData,
+                accessToken
+            };
+            localStorage.setItem('dev_authTokens', JSON.stringify(updatedAuthData));
+            
             return true;
         } catch (error) {
             console.error('🔴 Failed to refresh token:', error);
@@ -186,6 +207,15 @@ export class UserSetup {
     }
 
     async fetchWithAuth(url, options = {}) {
+        // Get the latest tokens from localStorage
+        const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
+        if (authData?.accessToken) {
+            this.accessToken = authData.accessToken;
+            this.refreshToken = authData.refreshToken;
+            this.userId = authData.userId;
+            this.username = authData.username;
+        }
+
         // Add authorization header
         const headers = {
             ...options.headers,
@@ -199,6 +229,13 @@ export class UserSetup {
             if (response.status === 401) {
                 const data = await response.json();
                 if (data.code === 'TOKEN_EXPIRED' && await this.refreshAccessToken()) {
+                    // Update localStorage with new token
+                    const updatedAuthData = {
+                        ...authData,
+                        accessToken: this.accessToken
+                    };
+                    localStorage.setItem('dev_authTokens', JSON.stringify(updatedAuthData));
+                    
                     // Retry with new token
                     headers.Authorization = `Bearer ${this.accessToken}`;
                     return fetch(url, { ...options, headers });

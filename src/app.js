@@ -11,8 +11,28 @@ import SummaryView from './components/purpose/SummaryView.js';
 import PurposeView from './components/purpose/PurposeView.js';
 import UserDataStore from './utils/userDataStore.js';
 
-class App {
+export class App {
+    static instance = null;
+
+    static getInstance() {
+        if (!App.instance) {
+            App.instance = new App();
+        }
+        return App.instance;
+    }
+
+    static initializeApp() {
+        const app = App.getInstance();
+        app.initialize();
+        return app;
+    }
+
     constructor() {
+        if (App.instance) {
+            return App.instance;
+        }
+        App.instance = this;
+
         this.userData = null;
         this.currentStep = 'unknown';
         
@@ -186,5 +206,17 @@ class App {
 }
 
 // Initialize app when DOM is ready
-const app = new App();
-document.addEventListener('DOMContentLoaded', app.initialize); 
+document.addEventListener('DOMContentLoaded', () => {
+    const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
+    if (authData?.accessToken) {
+        App.initializeApp();
+    } else {
+        // Just show the user setup screen without initializing the app
+        document.getElementById('main-app').classList.add('hidden');
+        document.getElementById('user-setup').classList.remove('hidden');
+        document.getElementById('account-recovery').classList.add('hidden');
+        document.getElementById('recovery-code-display').classList.add('hidden');
+    }
+});
+
+export default App; 

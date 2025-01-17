@@ -38,9 +38,15 @@ export function verifyAccessToken(token) {
         return jwt.verify(token, JWT_SECRET);
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
-            throw new Error('Token expired');
+            const err = new Error('Token expired');
+            err.code = 'TOKEN_EXPIRED';
+            err.statusCode = 401;
+            throw err;
         }
-        throw new Error('Invalid token');
+        const err = new Error('Invalid token');
+        err.code = 'TOKEN_INVALID';
+        err.statusCode = 401;
+        throw err;
     }
 }
 

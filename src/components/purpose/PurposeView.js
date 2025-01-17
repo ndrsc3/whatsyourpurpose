@@ -1,3 +1,5 @@
+import UserSetup from '../auth/UserSetup.js';
+
 export class PurposeView {
     constructor() {
         this.container = document.getElementById('purpose-view');
@@ -23,13 +25,10 @@ export class PurposeView {
         this.updateGeneratingState();
 
         try {
-            const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
-            
-            const response = await fetch('/api/generate-purpose', {
+            const response = await UserSetup.fetchWithAuth('/api/generate-purpose', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authData.accessToken}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(this.data)
             });
@@ -100,11 +99,18 @@ export class PurposeView {
             <div class="purpose-container">
                 ${this.data.purposeStatement ? `
                     <div class="purpose-statement">
-                        <button id="regenerate-purpose" class="icon-button" title="Generate Another Purpose Statement">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
-                            </svg>
-                        </button>
+                        ${this.data.needsNewPurpose ? `
+                            <div class="update-notice">
+                                <p>Your inputs have changed since your last purpose was generated.</p>
+                                <button id="regenerate-purpose" class="primary-button">Generate Updated Purpose</button>
+                            </div>
+                        ` : `
+                            <button id="regenerate-purpose" class="icon-button" title="Generate Another Purpose Statement">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                                </svg>
+                            </button>
+                        `}
                         <p>${this.data.purposeStatement}</p>
                     </div>
                     <div class="purpose-actions">
@@ -132,9 +138,10 @@ export class PurposeView {
         if (!this.container) return;
 
         this.container.addEventListener('click', async (e) => {
-            if (e.target.id === 'generate-purpose' || e.target.id === 'regenerate-purpose') {
+            const button = e.target.closest('#generate-purpose, #regenerate-purpose');
+            if (button) {
                 await this.generatePurpose();
-            } else if (e.target.id === 'share-purpose') {
+            } else if (e.target.closest('#share-purpose')) {
                 // TODO: Implement sharing functionality
                 alert('Sharing functionality coming soon!');
             }

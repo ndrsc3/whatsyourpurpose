@@ -9,7 +9,8 @@ export class UserDataStore {
             needs: [],
             purposeStatement: null,
             readyToGeneratePurpose: false,
-            lastUpdated: null
+            lastUpdated: null,
+            needsNewPurpose: false
         };
     }
 
@@ -30,6 +31,7 @@ export class UserDataStore {
         console.log('Updating values:', values);
         const data = this.getData();
         data.values = values;
+        data.needsNewPurpose = true;
         this.saveData(data);
     }
 
@@ -37,6 +39,7 @@ export class UserDataStore {
         console.log('Updating strengths:', strengths);
         const data = this.getData();
         data.strengths = strengths;
+        data.needsNewPurpose = true;
         this.saveData(data);
     }
 
@@ -44,6 +47,7 @@ export class UserDataStore {
         console.log('Updating reflection answers:', answers);
         const data = this.getData();
         data.reflectionAnswers = answers;
+        data.needsNewPurpose = true;
         this.saveData(data);
     }
 
@@ -51,6 +55,7 @@ export class UserDataStore {
         console.log('Updating needs:', needs);
         const data = this.getData();
         data.needs = needs;
+        data.needsNewPurpose = true;
         this.saveData(data);
     }
 
@@ -58,6 +63,7 @@ export class UserDataStore {
         console.log('Updating purpose statement:', purposeStatement);
         const data = this.getData();
         data.purposeStatement = purposeStatement;
+        data.needsNewPurpose = false;
         this.saveData(data);
     }
 
