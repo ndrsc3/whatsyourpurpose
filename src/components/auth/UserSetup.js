@@ -154,7 +154,6 @@ export class UserSetup {
             document.getElementById('recovery-code-display').classList.add('hidden');
             document.getElementById('user-setup').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('current-username').textContent = this.username;
 
             // Initialize the app
             App.initializeApp();
