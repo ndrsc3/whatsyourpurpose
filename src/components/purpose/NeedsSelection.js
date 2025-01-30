@@ -1,6 +1,3 @@
-import SummaryView from './SummaryView.js';
-import UserDataStore from '../../utils/userDataStore.js';
-
 export class NeedsSelection {
     constructor() {
         this.container = document.getElementById('needs-selection');

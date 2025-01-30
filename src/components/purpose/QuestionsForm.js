@@ -1,6 +1,3 @@
-import NeedsSelection from './NeedsSelection.js';
-import UserDataStore from '../../utils/userDataStore.js';
-
 export class QuestionsForm {
     constructor() {
         this.container = document.getElementById('questions-form');

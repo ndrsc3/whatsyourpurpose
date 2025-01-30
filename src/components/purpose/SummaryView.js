@@ -1,5 +1,3 @@
-import PurposeView from './PurposeView.js';
-
 export class SummaryView {
     constructor() {
         this.container = document.getElementById('summary-view');

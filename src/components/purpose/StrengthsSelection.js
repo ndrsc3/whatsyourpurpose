@@ -1,6 +1,3 @@
-import QuestionsForm from './QuestionsForm.js';
-import UserDataStore from '../../utils/userDataStore.js';
-
 export class StrengthsSelection {
     constructor() {
         this.container = document.getElementById('strengths-selection');

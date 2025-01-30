@@ -1,6 +1,3 @@
-import StrengthsSelection from './StrengthsSelection.js';
-import UserDataStore from '../../utils/userDataStore.js';
-
 export class ValuesSelection {
     constructor() {
         this.container = document.getElementById('values-selection');
