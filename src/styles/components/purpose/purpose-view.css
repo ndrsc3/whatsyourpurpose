@@ -43,6 +43,23 @@
     box-shadow: var(--shadow-sm);
 }
 
+.purpose-statement .purpose-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.purpose-statement .prompt-label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-style: italic;
+    padding: 0.25rem 0.75rem;
+    background: var(--grid-bg-color);
+    border-radius: 1rem;
+}
+
 .purpose-statement p {
     color: var(--text-color);
     font-size: 1.2rem;

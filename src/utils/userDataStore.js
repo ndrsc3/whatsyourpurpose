@@ -10,7 +10,8 @@ export class UserDataStore {
             purposeStatement: null,
             readyToGeneratePurpose: false,
             lastUpdated: null,
-            needsNewPurpose: false
+            needsNewPurpose: false,
+            lastUsedPromptIndex: -1
         };
     }
 

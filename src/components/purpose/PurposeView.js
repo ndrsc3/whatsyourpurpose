@@ -7,6 +7,13 @@ export class PurposeView {
         this.updateCallback = null;
         this.isGenerating = false;
         this.userId = null;
+        
+        // Add prompt names for display
+        this.promptNames = [
+            'Classic Purpose',
+            'Hero\'s Journey',
+            'Impact Focus'
+        ];
     }
 
     initialize(updateCallback, userId) {
@@ -73,12 +80,13 @@ export class PurposeView {
                 throw new Error('Failed to save purpose statement to database');
             }
 
-            // Update local data with the new purpose statement
+            // Update local data with the new purpose statement and prompt index
             const newData = {
                 ...this.data,
                 purposeStatement: result.purposeStatement,
                 generatedAt: new Date().toISOString(),
-                needsNewPurpose: false
+                needsNewPurpose: false,
+                lastUsedPromptIndex: result.promptIndex
             };
 
             // Update local storage and UI
@@ -134,11 +142,14 @@ export class PurposeView {
                                 <button id="regenerate-purpose" class="primary-button">Generate Updated Purpose</button>
                             </div>
                         ` : `
-                            <button id="regenerate-purpose" class="icon-button" title="Generate Another Purpose Statement">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
-                                </svg>
-                            </button>
+                            <div class="purpose-header">
+                                <span class="prompt-label">${this.promptNames[this.data.lastUsedPromptIndex] || 'Classic Purpose'}</span>
+                                <button id="regenerate-purpose" class="icon-button" title="Generate Another Purpose Statement">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                                    </svg>
+                                </button>
+                            </div>
                         `}
                         <p>${this.data.purposeStatement}</p>
                     </div>
