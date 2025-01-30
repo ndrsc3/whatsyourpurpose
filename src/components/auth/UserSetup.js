@@ -1,4 +1,5 @@
 import { generateDeviceFingerprint } from '../../utils/deviceUtils.js';
+import { fetchWithAuth } from '../../utils/authUtils.js';
 import App from '../../app.js';
 
 export class UserSetup {
@@ -7,8 +8,7 @@ export class UserSetup {
 
         this.userId = null;
         this.deviceId = null;
-        this.accessToken = null;
-        this.refreshToken = null;
+        this.username = null;
 
         this.container = document.getElementById('user-setup');
         this.form = document.getElementById('user-setup-form');
@@ -137,17 +137,12 @@ export class UserSetup {
 
             const result = await saveResponse.json();
 
-            // Store tokens
-            this.accessToken = result.accessToken;
-            this.refreshToken = result.refreshToken;
-            this.username = username;
-
-            // Update local storage
+            // Store tokens in localStorage
             localStorage.setItem('dev_authTokens', JSON.stringify({
-                accessToken: this.accessToken,
-                refreshToken: this.refreshToken,
+                accessToken: result.accessToken,
+                refreshToken: result.refreshToken,
                 userId: this.userId,
-                username: this.username
+                username: username
             }));
 
             // Update UI

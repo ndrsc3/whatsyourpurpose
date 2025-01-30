@@ -35,6 +35,7 @@ export class App {
 
         this.userData = null;
         this.currentStep = 'unknown';
+        this.userId = null;
         
         // Map section IDs to component names
         this.sectionToComponent = {
@@ -92,6 +93,10 @@ export class App {
         // Show next component
         if (toComponent) {
             toComponent.setData?.(this.userData);
+            if (toComponent === this.components.purposeView) {
+                // Ensure userId is passed when transitioning to PurposeView
+                toComponent.initialize?.(this.updateData, this.userId);
+            }
             toComponent.show();
         } else {
             console.error('🔴 [App] Component not found for step:', toStep);
@@ -181,6 +186,9 @@ export class App {
         // Check if user is authenticated
         const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
         if (authData?.accessToken) {
+            // Store userId from auth data
+            this.userId = authData.userId;
+            
             // Load initial data
             this.userData = UserDataStore.getData();
             
@@ -189,7 +197,7 @@ export class App {
             
             // Initialize components with data and determine current step
             Object.values(this.components).forEach(component => {
-                component.initialize?.(this.updateData);
+                component.initialize?.(this.updateData, this.userId);
             });
             
             this.determineStep();

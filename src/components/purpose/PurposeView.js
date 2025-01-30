@@ -1,4 +1,4 @@
-import UserSetup from '../auth/UserSetup.js';
+import { fetchWithAuth } from '../../utils/authUtils.js';
 
 export class PurposeView {
     constructor() {
@@ -6,10 +6,16 @@ export class PurposeView {
         this.data = null;
         this.updateCallback = null;
         this.isGenerating = false;
+        this.userId = null;
     }
 
-    initialize(updateCallback) {
+    initialize(updateCallback, userId) {
+        if (!userId) {
+            console.error('🔴 [PurposeView] No userId provided during initialization');
+            return;
+        }
         this.updateCallback = updateCallback;
+        this.userId = userId;
         this.bindEvents();
     }
 
@@ -21,11 +27,17 @@ export class PurposeView {
     async generatePurpose() {
         if (this.isGenerating) return;
         
+        if (!this.userId) {
+            this.showError('User ID not found. Please try logging in again.');
+            return;
+        }
+
         this.isGenerating = true;
         this.updateGeneratingState();
 
         try {
-            const response = await UserSetup.fetchWithAuth('/api/generate-purpose', {
+            // Generate the purpose statement
+            const response = await fetchWithAuth('/api/generate-purpose', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -45,14 +57,31 @@ export class PurposeView {
                 throw new Error('Invalid purpose statement format received');
             }
 
-            // Update data with the new purpose statement
+            // Save to KV store
+            const saveResponse = await fetchWithAuth('/api/save-purpose', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: this.userId,
+                    purposeStatement: result.purposeStatement
+                })
+            });
+
+            if (!saveResponse.ok) {
+                throw new Error('Failed to save purpose statement to database');
+            }
+
+            // Update local data with the new purpose statement
             const newData = {
                 ...this.data,
                 purposeStatement: result.purposeStatement,
-                generatedAt: new Date().toISOString()
+                generatedAt: new Date().toISOString(),
+                needsNewPurpose: false
             };
 
-            // Call the update callback with the properly structured data
+            // Update local storage and UI
             this.updateCallback(newData);
             
         } catch (error) {
