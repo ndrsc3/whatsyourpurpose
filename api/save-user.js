@@ -1,12 +1,5 @@
 import { kv } from '@vercel/kv';
-import crypto from 'crypto';
-import { generateTokenPair } from '../utils/jwt.js';
-
-function hashAnswer(answer) {
-    // Normalize the answer (lowercase, trim whitespace)
-    const normalizedAnswer = answer.toLowerCase().trim();
-    return crypto.createHash('sha256').update(normalizedAnswer).digest('hex');
-}
+import { hashAnswer, generateAuthResponse, createDeviceEntry } from '../utils/authHelpers.js';
 
 export default async function handler(req, res) {
     console.group('🔵 [API] Save User');
@@ -27,35 +20,17 @@ export default async function handler(req, res) {
             return res.status(409).json({ error: 'Username already taken' });
         }
 
-        // Hash the recovery answer
-        const hashedAnswer = hashAnswer(recoveryAnswer);
-
         // Create user metadata
         const userData = {
             userId,
             username,
             lastActive: new Date(),
             joinDate: new Date(),
-            recoveryHash: hashedAnswer,
-            devices: [{
-                deviceId,
-                fingerprint: deviceFingerprint,
-                lastUsed: new Date(),
-                trusted: true
-            }]
+            recoveryHash: hashAnswer(recoveryAnswer),
+            devices: [createDeviceEntry(deviceId, deviceFingerprint)]
         };
 
-        // Generate tokens
-        const tokens = generateTokenPair({
-            ...userData,
-            deviceId,
-            deviceTrusted: true
-        });
-
-        // Get current active users
-        const activeUsers = await kv.smembers('activeUsers') || [];
-
-        // Save user data and update indexes atomically using pipeline
+        // Save user data and update indexes atomically
         const pipeline = kv.pipeline();
         pipeline.set(`user:${userId}`, userData);
         userIndex[username.toLowerCase()] = userId;
@@ -65,10 +40,9 @@ export default async function handler(req, res) {
         
         console.debug('🔵 [API] Saved new user:', { userId, username });
         console.groupEnd();
-        res.status(200).json({ 
-            success: true,
-            ...tokens
-        });
+        
+        // Generate and return auth response
+        res.status(200).json(generateAuthResponse(userData, deviceId));
     } catch (error) {
         console.error('🔴 [API] Error saving user:', error);
         console.groupEnd();

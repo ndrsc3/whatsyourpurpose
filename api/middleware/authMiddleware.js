@@ -1,6 +1,7 @@
-import { compareDeviceFingerprints } from '../../src/utils/deviceUtils.js';
+import { verifyAccessToken } from '../../utils/jwt.js';
+import { verifyAdminAccessToken } from '../../utils/adminJwt.js';
 
-export function createAuthMiddleware(verifyToken, type = 'user') {
+function createAuthMiddleware(verifyToken, type = 'user') {
     return (handler) => {
         return async (req, res) => {
             console.group(`🔵 [Middleware] ${type} Authentication`);
@@ -47,3 +48,22 @@ export function createAuthMiddleware(verifyToken, type = 'user') {
         };
     };
 }
+
+// User authentication middleware
+export const verifyUserToken = createAuthMiddleware(verifyAccessToken, 'user');
+
+// Admin authentication middleware
+export const verifyAdminToken = createAuthMiddleware(verifyAdminAccessToken, 'admin');
+
+// Admin permission middleware
+export function requirePermission(permission) {
+    return (req, res, next) => {
+        if (!req.admin?.permissions?.includes(permission)) {
+            return res.status(403).json({ 
+                error: 'Insufficient permissions',
+                required: permission
+            });
+        }
+        return next();
+    };
+} 

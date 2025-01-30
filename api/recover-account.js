@@ -1,12 +1,5 @@
 import { kv } from '@vercel/kv';
-import crypto from 'crypto';
-import { generateTokenPair } from '../utils/jwt.js';
-
-function hashAnswer(answer) {
-    // Normalize the answer (lowercase, trim whitespace)
-    const normalizedAnswer = answer.toLowerCase().trim();
-    return crypto.createHash('sha256').update(normalizedAnswer).digest('hex');
-}
+import { hashAnswer, generateAuthResponse, createDeviceEntry } from '../utils/authHelpers.js';
 
 export default async function handler(req, res) {
     console.group('🔵 [API] Recover Account');
@@ -55,12 +48,7 @@ export default async function handler(req, res) {
                 recoverySuccessful = true;
                 // Add this device to trusted devices
                 userData.devices = userData.devices || [];
-                userData.devices.push({
-                    deviceId,
-                    fingerprint: deviceFingerprint,
-                    lastUsed: new Date(),
-                    trusted: true
-                });
+                userData.devices.push(createDeviceEntry(deviceId, deviceFingerprint));
                 // Update user data with new device
                 await kv.set(`user:${userId}`, userData);
             } else {
@@ -81,21 +69,9 @@ export default async function handler(req, res) {
                 await kv.set(`user:${userId}`, userData);
             }
 
-            // Generate tokens
-            const tokens = generateTokenPair({
-                ...userData,
-                deviceId: deviceId,
-                deviceTrusted: true
-            });
-
             console.debug('🔵 [API] Account recovered successfully for:', userId);
             console.groupEnd();
-            res.status(200).json({ 
-                success: true,
-                userId: userId,
-                username: userData.username,
-                ...tokens
-            });
+            res.status(200).json(generateAuthResponse(userData, deviceId));
         }
     } catch (error) {
         console.error('🔴 [API] Error recovering account:', error);

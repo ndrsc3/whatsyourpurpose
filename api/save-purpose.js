@@ -1,7 +1,7 @@
 import { kv } from '@vercel/kv';
-import { verifyAccessToken } from '../utils/jwt.js';
+import { verifyUserToken } from './middleware/authMiddleware.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
     console.group('🔵 [API] Save Purpose');
     if (req.method !== 'POST') {
         console.warn('🟡 [API] Invalid method:', req.method);
@@ -10,23 +10,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Verify authentication
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            console.warn('🟡 [API] No authorization header');
-            console.groupEnd();
-            return res.status(401).json({ error: 'No authorization header' });
-        }
-
-        const token = authHeader.split(' ')[1];
-        const decoded = await verifyAccessToken(token);
-        if (!decoded) {
-            console.warn('🟡 [API] Invalid token');
-            console.groupEnd();
-            return res.status(401).json({ error: 'Invalid token' });
-        }
-
-        const { userId } = decoded;
+        // User data is now available from middleware
+        const { userId } = req.user;
         const { purposeStatement } = req.body;
 
         // Validate the data
@@ -86,4 +71,7 @@ export default async function handler(req, res) {
             details: error.message 
         });
     }
-} 
+}
+
+// Wrap the handler with the auth middleware
+export default verifyUserToken(handler); 

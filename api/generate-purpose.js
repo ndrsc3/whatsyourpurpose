@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { kv } from '@vercel/kv';
-import { verifyAccessToken } from '../utils/jwt.js';
+import { verifyUserToken } from './middleware/authMiddleware.js';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
@@ -31,25 +31,14 @@ Generate a purpose statement that:
 The purpose statement should be 2-3 sentences long and start with "My purpose is to..."`;
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Verify authentication
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            return res.status(401).json({ error: 'No authorization header' });
-        }
-
-        const token = authHeader.split(' ')[1];
-        const decoded = await verifyAccessToken(token);
-        if (!decoded) {
-            return res.status(401).json({ error: 'Invalid token' });
-        }
-
-        const { userId } = decoded;
+        // User data is now available from middleware
+        const { userId } = req.user;
 
         // Get user data from request
         const userData = req.body;
@@ -98,4 +87,7 @@ export default async function handler(req, res) {
             details: error.message 
         });
     }
-} 
+}
+
+// Wrap the handler with the auth middleware
+export default verifyUserToken(handler); 
