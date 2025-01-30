@@ -7,7 +7,7 @@
 export async function refreshAccessToken() {
     try {
         // Get current auth data
-        const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
+        const authData = JSON.parse(localStorage.getItem('appWMP_auth'));
         if (!authData?.refreshToken) {
             throw new Error('No refresh token available');
         }
@@ -29,7 +29,7 @@ export async function refreshAccessToken() {
             ...authData,
             accessToken
         };
-        localStorage.setItem('dev_authTokens', JSON.stringify(updatedAuthData));
+        localStorage.setItem('appWMP_auth', JSON.stringify(updatedAuthData));
         
         return true;
     } catch (error) {
@@ -46,7 +46,7 @@ export async function refreshAccessToken() {
  */
 export async function fetchWithAuth(url, options = {}) {
     // Get the latest tokens from localStorage
-    const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
+    const authData = JSON.parse(localStorage.getItem('appWMP_auth'));
     if (!authData?.accessToken) {
         throw new Error('No access token available');
     }
@@ -65,7 +65,7 @@ export async function fetchWithAuth(url, options = {}) {
             const data = await response.json();
             if (data.code === 'TOKEN_EXPIRED' && await refreshAccessToken()) {
                 // Get new token from localStorage
-                const updatedAuthData = JSON.parse(localStorage.getItem('dev_authTokens'));
+                const updatedAuthData = JSON.parse(localStorage.getItem('appWMP_auth'));
                 
                 // Retry with new token
                 headers.Authorization = `Bearer ${updatedAuthData.accessToken}`;
@@ -78,4 +78,20 @@ export async function fetchWithAuth(url, options = {}) {
         console.error('🔴 Request failed:', error);
         throw error;
     }
+}
+
+export async function getAccessToken() {
+    // Get the latest tokens from localStorage
+    const authData = JSON.parse(localStorage.getItem('appWMP_auth'));
+    if (!authData?.accessToken) {
+        throw new Error('No access token available');
+    }
+
+    // Get new token from localStorage
+    const updatedAuthData = JSON.parse(localStorage.getItem('appWMP_auth'));
+    if (!updatedAuthData?.accessToken) {
+        throw new Error('No updated access token available');
+    }
+
+    return updatedAuthData.accessToken;
 } 

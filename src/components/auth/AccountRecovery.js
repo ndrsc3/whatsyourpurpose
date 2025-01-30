@@ -81,7 +81,7 @@ export class AccountRecovery {
             Object.assign(this, authData);
 
             // Store in localStorage
-            localStorage.setItem('dev_authTokens', JSON.stringify(authData));
+            localStorage.setItem('appWMP_auth', JSON.stringify(authData));
 
             // Update UI and initialize app
             this.container.classList.add('hidden');

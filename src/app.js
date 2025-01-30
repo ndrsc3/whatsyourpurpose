@@ -184,7 +184,7 @@ export class App {
 
     initialize() {
         // Check if user is authenticated
-        const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
+        const authData = JSON.parse(localStorage.getItem('appWMP_auth'));
         if (authData?.accessToken) {
             // Store userId from auth data
             this.userId = authData.userId;
@@ -215,7 +215,7 @@ export class App {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    const authData = JSON.parse(localStorage.getItem('dev_authTokens'));
+    const authData = JSON.parse(localStorage.getItem('appWMP_auth'));
     if (authData?.accessToken) {
         App.initializeApp();
     } else {

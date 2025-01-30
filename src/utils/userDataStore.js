@@ -1,5 +1,5 @@
 export class UserDataStore {
-    static STORAGE_KEY = 'purposeJourneyData';
+    static STORAGE_KEY = 'appWMP_userData';
 
     static getDefaultData() {
         return {

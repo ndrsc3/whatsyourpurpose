@@ -1,7 +1,7 @@
 export class ThemeToggle {
     constructor() {
 
-        this.savedTheme = localStorage.getItem('theme') || 'dark';
+        this.savedTheme = localStorage.getItem('appWMP_theme') || 'dark';
 
         document.documentElement.classList.toggle('light-theme', this.savedTheme === 'light');
         
@@ -18,7 +18,7 @@ export class ThemeToggle {
     toggleTheme() {
         const root = document.documentElement;
         const isLightTheme = root.classList.toggle('light-theme');
-        localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
+        localStorage.setItem('appWMP_theme', isLightTheme ? 'light' : 'dark');
     }
 }
 

@@ -138,7 +138,7 @@ export class UserSetup {
             const result = await saveResponse.json();
 
             // Store tokens in localStorage
-            localStorage.setItem('dev_authTokens', JSON.stringify({
+            localStorage.setItem('appWMP_auth', JSON.stringify({
                 accessToken: result.accessToken,
                 refreshToken: result.refreshToken,
                 userId: this.userId,
