@@ -45,8 +45,8 @@ What's your purpose? is a web app that helps you discover your purpose in life. 
 
 ### API Endpoints
 1. Authentication
-   - `/api/auth/verify` - Verify JWT token
-   - `/api/auth/refresh` - Refresh access token
+   - `/api/auth/token-verify` - Verify JWT token
+   - `/api/auth/token-refresh` - Refresh access token
    - `/api/check-username` - Check username availability
 
 2. Core Functionality
