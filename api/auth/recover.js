@@ -1,5 +1,5 @@
 import { kv } from '@vercel/kv';
-import { hashAnswer, generateAuthResponse, createDeviceEntry } from '../utils/authHelpers.js';
+import { hashAnswer, generateAuthResponse, createDeviceEntry } from '../../utils/authHelpers.js';
 
 export default async function handler(req, res) {
     console.group('🔵 [API] Recover Account');

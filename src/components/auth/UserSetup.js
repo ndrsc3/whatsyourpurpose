@@ -119,7 +119,7 @@ export class UserSetup {
             });
 
             // Save user with recovery answer
-            const saveResponse = await fetch('/api/save-user', {
+            const saveResponse = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
