@@ -14,8 +14,12 @@
       "destination": "/src/$1"
     },
     {
-      "source": "/api/ws",
-      "destination": "/api/ws.js"
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth/$1.js"
+    },
+    {
+      "source": "/api/admin/(.*)",
+      "destination": "/api/admin/$1.js"
     },
     {
       "source": "/api/(.*)",

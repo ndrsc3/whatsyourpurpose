@@ -40,7 +40,7 @@ export class UserSetup {
             }
         
             // Check username availability
-            const checkResponse = await fetch('/api/check-username', {
+            const checkResponse = await fetch('/api/auth/check-username', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username })
