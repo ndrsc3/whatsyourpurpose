@@ -1,5 +1,5 @@
 import { kv } from '@vercel/kv';
-import { verifyAdminRefreshToken, generateAdminAccessToken } from '../../utils/adminJwt';
+import { verifyAdminRefreshToken, generateAdminAccessToken } from '../lib/auth/adminJwt.js';
 
 export default async function handler(req, res) {
     console.group('🔵 [API] Admin Token Refresh');

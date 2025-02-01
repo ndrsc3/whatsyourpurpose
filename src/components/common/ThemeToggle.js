@@ -1,10 +1,9 @@
+import UserDataStore from '../../utils/userDataStore.js';
+
 export class ThemeToggle {
     constructor() {
-
-        this.savedTheme = localStorage.getItem('appWMP_theme') || 'dark';
-
+        this.savedTheme = UserDataStore.getTheme();
         document.documentElement.classList.toggle('light-theme', this.savedTheme === 'light');
-        
         this.bindEvents();
     }
 
@@ -18,7 +17,7 @@ export class ThemeToggle {
     toggleTheme() {
         const root = document.documentElement;
         const isLightTheme = root.classList.toggle('light-theme');
-        localStorage.setItem('appWMP_theme', isLightTheme ? 'light' : 'dark');
+        UserDataStore.updateTheme(isLightTheme ? 'light' : 'dark');
     }
 }
 

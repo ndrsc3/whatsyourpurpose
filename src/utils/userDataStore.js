@@ -11,7 +11,8 @@ export class UserDataStore {
             readyToGeneratePurpose: false,
             lastUpdated: null,
             needsNewPurpose: false,
-            lastUsedPromptIndex: -1
+            lastUsedPromptIndex: -1,
+            theme: 'dark'
         };
     }
 
@@ -66,6 +67,19 @@ export class UserDataStore {
         data.purposeStatement = purposeStatement;
         data.needsNewPurpose = false;
         this.saveData(data);
+    }
+
+    static updateTheme(theme) {
+        console.log('Updating theme:', theme);
+        const data = this.getData();
+        data.theme = theme;
+        this.saveData(data);
+        document.documentElement.classList.toggle('light-theme', theme === 'light');
+    }
+
+    static getTheme() {
+        const data = this.getData();
+        return data.theme || 'dark';
     }
 
     static clearData() {

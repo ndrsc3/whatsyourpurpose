@@ -5,7 +5,6 @@
     { "src": "src/**/*.css", "use": "@vercel/static" },
     { "src": "src/**/*.js", "use": "@vercel/static" },
     { "src": "public/**/*", "use": "@vercel/static" },
-    { "src": "utils/*.js", "use": "@vercel/static" },
     { "src": "api/**/*.js", "use": "@vercel/node" }
   ],
   "rewrites": [

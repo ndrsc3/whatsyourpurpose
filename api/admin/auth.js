@@ -1,6 +1,6 @@
 import { kv } from '@vercel/kv';
 import crypto from 'crypto';
-import { generateAdminTokenPair } from '../../utils/adminJwt';
+import { generateAdminTokenPair } from '../lib/auth/adminJwt.js';
 
 // Get admin secret from environment variable
 const ADMIN_SECRET = process.env.ADMIN_SECRET;

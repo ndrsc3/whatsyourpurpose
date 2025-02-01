@@ -1,5 +1,5 @@
-import { verifyAccessToken } from '../../utils/jwt.js';
-import { verifyAdminAccessToken } from '../../utils/adminJwt.js';
+import { verifyAccessToken } from '../lib/auth/jwt.js';
+import { verifyAdminAccessToken } from '../lib/auth/adminJwt.js';
 
 function createAuthMiddleware(verifyToken, type = 'user') {
     return (handler) => {
