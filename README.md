@@ -29,7 +29,7 @@ A web application for finding your purpose utilizing vanilla JavaScript and AI i
 1. Clone the repository:
 ```bash
 git clone https://github.com/ndrsc3/whats-your-purpose.git
-cd squatWithMe
+cd whats-your-purpose
 ```
 
 2. Install dependencies:
