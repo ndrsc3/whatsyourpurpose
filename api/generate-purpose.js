@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { kv } from '@vercel/kv';
-import { verifyUserToken } from './middleware/authMiddleware.js';
+import { verifyUserToken } from './auth-middleware.js';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY

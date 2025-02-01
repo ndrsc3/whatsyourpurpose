@@ -39,7 +39,7 @@ export class AccountRecovery {
             const deviceFingerprint = await generateDeviceFingerprint();
 
             // Try to recover without answer first (for known devices)
-            const response = await fetch('/api/auth/recover', {
+            const response = await fetch('/api/auth-recover', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 

@@ -154,9 +154,9 @@ export class PurposeView {
                         <p>${this.data.purposeStatement}</p>
                     </div>
                     <div class="purpose-actions">
-                        <button id="share-purpose" class="primary-button">
+                        <!-- <button id="share-purpose" class="primary-button">
                             Share Purpose
-                        </button>
+                        </button> -->
                     </div>
                 ` : `
                     <div class="purpose-intro">

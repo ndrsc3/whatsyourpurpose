@@ -40,7 +40,7 @@ export class UserSetup {
             }
         
             // Check username availability
-            const checkResponse = await fetch('/api/auth/check-username', {
+            const checkResponse = await fetch('/api/auth-check-username', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username })
@@ -119,7 +119,7 @@ export class UserSetup {
             });
 
             // Save user with recovery answer
-            const saveResponse = await fetch('/api/auth/register', {
+            const saveResponse = await fetch('/api/auth-register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

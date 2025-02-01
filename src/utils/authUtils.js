@@ -12,7 +12,7 @@ export async function refreshAccessToken() {
             throw new Error('No refresh token available');
         }
 
-        const response = await fetch('/api/auth/token-refresh', {
+        const response = await fetch('/api/auth-token-refresh', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ refreshToken: authData.refreshToken })

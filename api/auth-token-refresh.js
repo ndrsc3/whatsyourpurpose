@@ -1,5 +1,5 @@
 import { kv } from '@vercel/kv';
-import { verifyRefreshToken, generateAccessToken } from '../lib/auth/jwt.js';
+import { verifyRefreshToken, generateAccessToken } from './auth-jwt.js';
 
 export default async function handler(req, res) {
     console.group('🔵 [API] Token Refresh');

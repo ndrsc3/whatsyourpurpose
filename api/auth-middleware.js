@@ -1,5 +1,4 @@
-import { verifyAccessToken } from '../lib/auth/jwt.js';
-import { verifyAdminAccessToken } from '../lib/auth/adminJwt.js';
+import { verifyAccessToken } from './auth-jwt.js';
 
 function createAuthMiddleware(verifyToken, type = 'user') {
     return (handler) => {
@@ -53,7 +52,7 @@ function createAuthMiddleware(verifyToken, type = 'user') {
 export const verifyUserToken = createAuthMiddleware(verifyAccessToken, 'user');
 
 // Admin authentication middleware
-export const verifyAdminToken = createAuthMiddleware(verifyAdminAccessToken, 'admin');
+//export const verifyAdminToken = createAuthMiddleware(verifyAdminAccessToken, 'admin');
 
 // Admin permission middleware
 export function requirePermission(permission) {

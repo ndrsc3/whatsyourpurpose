@@ -1,5 +1,5 @@
 import { kv } from '@vercel/kv';
-import { hashAnswer, generateAuthResponse, createDeviceEntry } from '../lib/auth/authHelpers.js';
+import { hashAnswer, generateAuthResponse, createDeviceEntry } from './auth-helpers.js';
 
 export default async function handler(req, res) {
     console.group('🔵 [API] Save User');

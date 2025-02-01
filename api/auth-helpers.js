@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { generateTokenPair } from './jwt.js';
+import { generateTokenPair } from './auth-jwt.js';
 
 // Shared function for hashing recovery answers
 export function hashAnswer(answer) {
