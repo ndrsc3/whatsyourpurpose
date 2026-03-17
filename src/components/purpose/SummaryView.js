@@ -1,3 +1,5 @@
+import { REFLECTION_QUESTIONS } from '../../constants.js';
+
 export class SummaryView {
     constructor() {
         this.container = document.getElementById('summary-view');
@@ -20,12 +22,7 @@ export class SummaryView {
 
         console.log('🔵 [SummaryView] Rendering with data:', this.data);
 
-        const questions = [
-            'What has been your proudest moment in your life so far? Why?',
-            'What activities in your life created a glow in your eyes?',
-            'What are three keywords or phrases you wish to be known for?',
-            'What would the world be missing if you didn\'t exist?'
-        ];
+        const questions = REFLECTION_QUESTIONS;
 
         // Ensure we have arrays for all data, even if empty
         const values = Array.isArray(this.data.values) ? this.data.values : [];

@@ -57,24 +57,22 @@ export class App {
         };
 
         // Initialize navigation panel
-        NavigationPanel.initialize(this.updateData.bind(this));
+        NavigationPanel.initialize(
+            this.updateData.bind(this),
+            (section) => this.components[this.sectionToComponent[section]]
+        );
 
-        // Bind methods
-        this.initialize = this.initialize.bind(this);
-        this.updateData = this.updateData.bind(this);
-        this.determineStep = this.determineStep.bind(this);
-        this.showComponent = this.showComponent.bind(this);
     }
 
     logAppState() {
         console.group('🔵 [App] Current State');
         console.log('App Data:', this.userData);
         console.log('Current Step:', this.currentStep);
-        console.log('Values completed:', this.hasCompletedValues());
-        console.log('Strengths completed:', this.hasCompletedStrengths());
-        console.log('Reflections completed:', this.hasCompletedReflections());
-        console.log('Needs completed:', this.hasCompletedNeeds());
-        console.log('Has purpose statement:', this.hasPurposeStatement());
+        console.log('Values completed:', UserDataStore.hasCompletedValues(this.userData));
+        console.log('Strengths completed:', UserDataStore.hasCompletedStrengths(this.userData));
+        console.log('Reflections completed:', UserDataStore.hasCompletedReflections(this.userData));
+        console.log('Needs completed:', UserDataStore.hasCompletedNeeds(this.userData));
+        console.log('Has purpose statement:', UserDataStore.hasPurposeStatement(this.userData));
         console.groupEnd();
     }
 
@@ -111,26 +109,6 @@ export class App {
         });
     }
 
-    hasCompletedValues() {
-        return Array.isArray(this.userData?.values) && this.userData.values.length === 10;
-    }
-
-    hasCompletedStrengths() {
-        return Array.isArray(this.userData?.strengths) && this.userData.strengths.length === 10;
-    }
-
-    hasCompletedReflections() {
-        return Array.isArray(this.userData?.reflectionAnswers) && this.userData.reflectionAnswers.length === 4;
-    }
-
-    hasCompletedNeeds() {
-        return Array.isArray(this.userData?.needs) && this.userData.needs.length === 10;
-    }
-
-    hasPurposeStatement() {
-        return !!this.userData?.purposeStatement;
-    }
-
     updateData(newData) {
         this.userData = newData;
         UserDataStore.saveData(newData);
@@ -151,15 +129,15 @@ export class App {
         let nextStep;
 
         // Determine which component to show
-        if (!this.hasCompletedValues()) {
+        if (!UserDataStore.hasCompletedValues(this.userData)) {
             nextStep = 'values';
-        } else if (!this.hasCompletedStrengths()) {
+        } else if (!UserDataStore.hasCompletedStrengths(this.userData)) {
             nextStep = 'strengths';
-        } else if (!this.hasCompletedReflections()) {
+        } else if (!UserDataStore.hasCompletedReflections(this.userData)) {
             nextStep = 'reflections';
-        } else if (!this.hasCompletedNeeds()) {
+        } else if (!UserDataStore.hasCompletedNeeds(this.userData)) {
             nextStep = 'needs';
-        } else if (this.userData?.readyToGeneratePurpose || this.hasPurposeStatement()) {
+        } else if (this.userData?.readyToGeneratePurpose || UserDataStore.hasPurposeStatement(this.userData)) {
             nextStep = 'purpose';
         } else {
             nextStep = 'summary';

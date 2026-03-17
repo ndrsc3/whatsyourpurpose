@@ -14,15 +14,6 @@ async function handler(req, res) {
         const { userId } = req.user;
         const { purposeStatement } = req.body;
 
-        // Validate the data
-        if (!userId || typeof userId !== 'string') {
-            console.warn('🟡 [API] Invalid userId:', userId);
-            console.groupEnd();
-            return res.status(400).json({ 
-                error: 'Invalid or missing userId' 
-            });
-        }
-
         if (typeof purposeStatement !== 'string' || purposeStatement.trim().length === 0) {
             console.warn('🟡 [API] Invalid purpose statement format');
             console.groupEnd();

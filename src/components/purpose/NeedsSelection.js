@@ -1,10 +1,17 @@
-export class NeedsSelection {
+import { SelectionComponent } from './SelectionComponent.js';
+
+class NeedsSelection extends SelectionComponent {
     constructor() {
-        this.container = document.getElementById('needs-selection');
-        this.data = null;
-        this.updateCallback = null;
-        this.maxSelections = 10;
-        
+        super({
+            containerId: 'needs-selection',
+            itemClass: 'need-item',
+            dataKey: 'need',
+            nextSection: 'summary',
+            title: 'Select Human Needs You Can Address',
+            subtitle: 'Based on your strengths & values, what are human needs that you think you can address well?',
+            items: [] // not used — renderItems() is overridden
+        });
+
         this.needsCategories = {
             'Sustainable Development Goals': [
                 'No poverty', 'Zero Hunger', 'Good Health & Well being', 'Quality education',
@@ -40,40 +47,17 @@ export class NeedsSelection {
         };
     }
 
-    initialize(updateCallback) {
-        this.updateCallback = updateCallback;
-        this.bindEvents();
-    }
+    renderItems() {
+        const sdgItems = this.needsCategories['Sustainable Development Goals'];
+        const worldlyNeeds = this.needsCategories['Worldly Needs'];
 
-    setData(data) {
-        this.data = data;
-        this.render();
-    }
-
-    getSelectedNeeds() {
-        if (!this.container) return new Set();
-        const selectedButtons = this.container.querySelectorAll('.need-item.selected');
-        return new Set([...selectedButtons].map(button => button.dataset.need));
-    }
-
-    render() {
-        if (!this.container || !this.data) return;
-
-        console.log('🔵 [NeedsSelection] Rendering with data:', this.data);
-
-        const content = `
-            <div class="needs-header">
-                <h3>Select Human Needs You Can Address</h3>
-                <p>Based on your strengths & values, what are human needs that you think you can address well?</p>
-                <p class="selection-count">Selected: <span id="selected-count">0</span>/${this.maxSelections}</p>
-            </div>
-            
+        return `
             <div class="needs-container">
                 <div class="category-section">
                     <h3>Sustainable Development Goals</h3>
                     <div class="needs-grid">
-                        ${this.needsCategories['Sustainable Development Goals'].map(need => `
-                            <button class="need-item ${this.data.needs?.includes(need) ? 'selected' : ''}" 
+                        ${sdgItems.map(need => `
+                            <button class="need-item ${this.data.needs?.includes(need) ? 'selected' : ''}"
                                     data-need="${need}">
                                 ${need}
                             </button>
@@ -83,12 +67,12 @@ export class NeedsSelection {
 
                 <div class="category-section">
                     <h3>Worldly Needs</h3>
-                    ${Object.entries(this.needsCategories['Worldly Needs']).map(([subcategory, needs]) => `
+                    ${Object.entries(worldlyNeeds).map(([subcategory, needs]) => `
                         <div class="subcategory-section">
                             <h4>${subcategory}</h4>
                             <div class="needs-grid">
                                 ${needs.map(need => `
-                                    <button class="need-item ${this.data.needs?.includes(need) ? 'selected' : ''}" 
+                                    <button class="need-item ${this.data.needs?.includes(need) ? 'selected' : ''}"
                                             data-need="${need}">
                                         ${need}
                                     </button>
@@ -98,72 +82,8 @@ export class NeedsSelection {
                     `).join('')}
                 </div>
             </div>
-
-            <div class="needs-footer">
-                <button id="needs-continue" class="primary-button" 
-                        ${(this.data.needs?.length || 0) !== this.maxSelections ? 'disabled' : ''}>
-                    Save
-                </button>
-            </div>
         `;
-
-        this.container.innerHTML = content;
-        this.updateSelectionCount();
-    }
-
-    updateSelectionCount() {
-        const selectedCountSpan = this.container.querySelector('#selected-count');
-        const continueButton = this.container.querySelector('#needs-continue');
-        const selectedCount = this.getSelectedNeeds().size;
-        
-        if (selectedCountSpan) {
-            selectedCountSpan.textContent = selectedCount;
-        }
-        if (continueButton) {
-            continueButton.disabled = selectedCount !== this.maxSelections;
-        }
-    }
-
-    bindEvents() {
-        if (!this.container) return;
-
-        this.container.addEventListener('click', (e) => {
-            // Handle need selection
-            if (e.target.classList.contains('need-item')) {
-                const selectedNeeds = this.getSelectedNeeds();
-                
-                if (e.target.classList.contains('selected')) {
-                    e.target.classList.remove('selected');
-                    selectedNeeds.delete(e.target.dataset.need);
-                } else if (selectedNeeds.size < this.maxSelections) {
-                    e.target.classList.add('selected');
-                    selectedNeeds.add(e.target.dataset.need);
-                }
-
-                this.updateSelectionCount();
-            }
-            
-            // Handle continue button
-            if (e.target.id === 'needs-continue' && !e.target.disabled) {
-                const selectedNeeds = this.getSelectedNeeds();
-                const newData = {
-                    ...this.data,
-                    needs: [...selectedNeeds],
-                    currentSection: 'summary',
-                    isNavigating: true
-                };
-                this.updateCallback(newData);
-            }
-        });
-    }
-
-    show() {
-        this.container.classList.remove('hidden');
-    }
-
-    hide() {
-        this.container.classList.add('hidden');
     }
 }
 
-export default new NeedsSelection(); 
+export default new NeedsSelection();

@@ -81,17 +81,9 @@ export async function fetchWithAuth(url, options = {}) {
 }
 
 export async function getAccessToken() {
-    // Get the latest tokens from localStorage
     const authData = JSON.parse(localStorage.getItem('appWMP_auth'));
     if (!authData?.accessToken) {
         throw new Error('No access token available');
     }
-
-    // Get new token from localStorage
-    const updatedAuthData = JSON.parse(localStorage.getItem('appWMP_auth'));
-    if (!updatedAuthData?.accessToken) {
-        throw new Error('No updated access token available');
-    }
-
-    return updatedAuthData.accessToken;
+    return authData.accessToken;
 } 

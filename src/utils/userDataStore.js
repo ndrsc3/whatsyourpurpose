@@ -86,29 +86,29 @@ export class UserDataStore {
         localStorage.removeItem(this.STORAGE_KEY);
     }
 
-    static hasCompletedValues() {
-        const data = this.getData();
-        return Array.isArray(data.values) && data.values.length === 10;
+    static hasCompletedValues(data) {
+        const d = data ?? this.getData();
+        return Array.isArray(d.values) && d.values.length === 10;
     }
 
-    static hasCompletedStrengths() {
-        const data = this.getData();
-        return Array.isArray(data.strengths) && data.strengths.length === 10;
+    static hasCompletedStrengths(data) {
+        const d = data ?? this.getData();
+        return Array.isArray(d.strengths) && d.strengths.length === 10;
     }
 
-    static hasCompletedReflections() {
-        const data = this.getData();
-        return Array.isArray(data.reflectionAnswers) && data.reflectionAnswers.length === 4;
+    static hasCompletedReflections(data) {
+        const d = data ?? this.getData();
+        return Array.isArray(d.reflectionAnswers) && d.reflectionAnswers.length === 4;
     }
 
-    static hasCompletedNeeds() {
-        const data = this.getData();
-        return Array.isArray(data.needs) && data.needs.length === 10;
+    static hasCompletedNeeds(data) {
+        const d = data ?? this.getData();
+        return Array.isArray(d.needs) && d.needs.length === 10;
     }
 
-    static hasPurposeStatement() {
-        const data = this.getData();
-        return !!data.purposeStatement;
+    static hasPurposeStatement(data) {
+        const d = data ?? this.getData();
+        return !!d.purposeStatement;
     }
 }
 

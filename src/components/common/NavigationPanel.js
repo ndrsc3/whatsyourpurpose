@@ -25,8 +25,9 @@ export class NavigationPanel {
         this.closePanel = this.closePanel.bind(this);
     }
 
-    initialize(updateCallback) {
+    initialize(updateCallback, getComponent) {
         this.updateCallback = updateCallback;
+        this.getComponent = getComponent ?? null;
         this.bindEvents();
         this.render();
     }
@@ -49,7 +50,7 @@ export class NavigationPanel {
             // Handle navigation item clicks - check for closest nav-item
             const navItem = e.target.closest('.nav-item');
             if (navItem) {
-                this.handleNavItemClick({ target: navItem });
+                this.handleNavItemClick(navItem.dataset.section);
             }
         });
 
@@ -72,127 +73,65 @@ export class NavigationPanel {
         this.overlay.classList.remove('active');
     }
 
-    checkForUnsavedChanges(section) {
-        if (!this.data) return false;
-
-        const currentSection = this.data.currentSection;
+    checkForUnsavedChanges() {
+        const currentSection = this.data?.currentSection;
         if (!currentSection) return false;
-
-        // Check for unsaved changes based on section
-        switch (currentSection) {
-            case 'values': {
-                const selectedElements = document.querySelectorAll('#values-selection .value-item.selected');
-                const selectedValues = Array.from(selectedElements).map(el => el.dataset.value);
-                const savedValues = this.data.values || [];
-                
-                // Only check for differences if we have 10 selected
-                if (selectedValues.length === 10) {
-                    return !selectedValues.every(value => savedValues.includes(value)) || 
-                           !savedValues.every(value => selectedValues.includes(value));
-                }
-                return selectedValues.length !== savedValues.length;
-            }
-            
-            case 'strengths': {
-                const selectedElements = document.querySelectorAll('#strengths-selection .strength-item.selected');
-                const selectedStrengths = Array.from(selectedElements).map(el => el.dataset.strength);
-                const savedStrengths = this.data.strengths || [];
-                
-                // Only check for differences if we have 10 selected
-                if (selectedStrengths.length === 10) {
-                    return !selectedStrengths.every(value => savedStrengths.includes(value)) || 
-                           !savedStrengths.every(value => selectedStrengths.includes(value));
-                }
-                return selectedStrengths.length !== savedStrengths.length;
-            }
-            
-            case 'needs': {
-                const selectedElements = document.querySelectorAll('#needs-selection .need-item.selected');
-                const selectedNeeds = Array.from(selectedElements).map(el => el.dataset.need);
-                const savedNeeds = this.data.needs || [];
-                
-                // Only check for differences if we have 10 selected
-                if (selectedNeeds.length === 10) {
-                    return !selectedNeeds.every(value => savedNeeds.includes(value)) || 
-                           !savedNeeds.every(value => selectedNeeds.includes(value));
-                }
-                return selectedNeeds.length !== savedNeeds.length;
-            }
-            
-            default:
-                return false;
-        }
+        return this.getComponent?.(currentSection)?.hasUnsavedChanges() ?? false;
     }
 
-    handleNavItemClick(e) {
-        const navItem = e.target.closest('.nav-item');
-        if (navItem && this.data) {
-            const section = navItem.dataset.section;
-            console.log('🔵 [NavigationPanel] Nav item clicked:', section);
-            
-            if (section) {
-                if (this.checkForUnsavedChanges(section)) {
-                    const selectedCount = document.querySelectorAll(`#${this.data.currentSection}-selection .${this.data.currentSection.slice(0, -1)}-item.selected`).length;
-                    
-                    if (selectedCount === 10) {
-                        // Case A: User has selected required amount but hasn't saved
-                        Modal.show({
-                            title: 'Save Changes?',
-                            message: 'You have made changes to your selections. Would you like to save them before continuing?',
-                            buttons: [
-                                {
-                                    text: 'Save & Continue',
-                                    type: 'primary-button',
-                                    onClick: () => {
-                                        // Trigger save by clicking the continue button
-                                        const continueButton = document.querySelector(`#${this.data.currentSection}-continue`);
-                                        if (continueButton) {
-                                            continueButton.click();
-                                            this.closePanel(); // Close the navigation panel after saving
-                                        }
-                                    }
-                                },
-                                {
-                                    text: 'Discard Changes',
-                                    onClick: () => {
-                                        const newData = {
-                                            ...this.data,
-                                            currentSection: section,
-                                            isNavigating: true
-                                        };
-                                        this.updateCallback(newData);
-                                    }
-                                }
-                            ]
-                        });
-                    } else {
-                        // Case B: User hasn't selected required amount
-                        Modal.show({
-                            title: 'Incomplete Selection',
-                            message: `Please select ${10 - selectedCount} more items to complete this section.`,
-                            buttons: [
-                                {
-                                    text: 'Continue Selecting',
-                                    type: 'primary-button',
-                                    onClick: () => {
-                                        this.closePanel(); // Close the navigation panel
-                                    }
-                                }
-                            ]
-                        });
-                    }
-                    return;
-                }
+    handleNavItemClick(section) {
+        if (!section || !this.data) return;
 
-                const newData = {
-                    ...this.data,
-                    currentSection: section,
-                    isNavigating: true
-                };
-                this.updateCallback(newData);
-                this.closePanel(); // Close panel after navigation
+        console.log('🔵 [NavigationPanel] Nav item clicked:', section);
+
+        if (this.checkForUnsavedChanges()) {
+            const currentComponent = this.getComponent?.(this.data.currentSection);
+            const selectedCount = currentComponent?.getSelected?.().size ?? 0;
+
+            if (selectedCount === 10) {
+                // Case A: User has selected required amount but hasn't saved
+                Modal.show({
+                    title: 'Save Changes?',
+                    message: 'You have made changes to your selections. Would you like to save them before continuing?',
+                    buttons: [
+                        {
+                            text: 'Save & Continue',
+                            type: 'primary-button',
+                            onClick: () => {
+                                const continueButton = document.querySelector(`#${this.data.currentSection}-continue`);
+                                if (continueButton) {
+                                    continueButton.click();
+                                    this.closePanel();
+                                }
+                            }
+                        },
+                        {
+                            text: 'Discard Changes',
+                            onClick: () => {
+                                this.updateCallback({ ...this.data, currentSection: section, isNavigating: true });
+                            }
+                        }
+                    ]
+                });
+            } else {
+                // Case B: User hasn't selected required amount
+                Modal.show({
+                    title: 'Incomplete Selection',
+                    message: `Please select ${10 - selectedCount} more items to complete this section.`,
+                    buttons: [
+                        {
+                            text: 'Continue Selecting',
+                            type: 'primary-button',
+                            onClick: () => this.closePanel()
+                        }
+                    ]
+                });
             }
+            return;
         }
+
+        this.updateCallback({ ...this.data, currentSection: section, isNavigating: true });
+        this.closePanel();
     }
 
     getCompletionStatus(section) {

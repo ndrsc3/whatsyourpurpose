@@ -1,15 +1,11 @@
+import { REFLECTION_QUESTIONS } from '../../constants.js';
+
 export class QuestionsForm {
     constructor() {
         this.container = document.getElementById('questions-form');
         this.data = null;
         this.updateCallback = null;
-        
-        this.questions = [
-            'What has been your proudest moment in your life so far? Why?',
-            'What activities in your life created a glow in your eyes?',
-            'What are three keywords or phrases you wish to be known for?',
-            'What would the world be missing if you didn\'t exist?'
-        ];
+        this.questions = REFLECTION_QUESTIONS;
     }
 
     initialize(updateCallback) {
@@ -109,6 +105,7 @@ export class QuestionsForm {
 
         this.container.addEventListener('click', (e) => {
             if (e.target.id === 'questions-continue' && !e.target.disabled) {
+                if (!this.validateAnswers()) return;
                 const answers = this.getAnswers();
                 const newData = {
                     ...this.data,

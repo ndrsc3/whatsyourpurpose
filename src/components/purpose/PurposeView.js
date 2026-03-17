@@ -71,7 +71,6 @@ export class PurposeView {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    userId: this.userId,
                     purposeStatement: result.purposeStatement
                 })
             });
