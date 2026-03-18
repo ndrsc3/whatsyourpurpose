@@ -1,0 +1,27 @@
+import UserDataStore from '../../utils/userDataStore.js';
+
+export class ThemeToggle {
+    private savedTheme: 'dark' | 'light';
+    private btnToggleTheme: HTMLElement | null = null;
+
+    constructor() {
+        this.savedTheme = UserDataStore.getTheme();
+        document.documentElement.classList.toggle('light-theme', this.savedTheme === 'light');
+        this.bindEvents();
+    }
+
+    bindEvents(): void {
+        this.btnToggleTheme = document.getElementById('theme-toggle');
+        if (this.btnToggleTheme) {
+            this.btnToggleTheme.addEventListener('click', () => this.toggleTheme());
+        }
+    }
+
+    toggleTheme(): void {
+        const root = document.documentElement;
+        const isLightTheme = root.classList.toggle('light-theme');
+        UserDataStore.updateTheme(isLightTheme ? 'light' : 'dark');
+    }
+}
+
+export default new ThemeToggle();
