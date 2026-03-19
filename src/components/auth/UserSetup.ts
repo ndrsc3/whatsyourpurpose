@@ -65,6 +65,7 @@ export class UserSetup {
 
             if (!this.userId) {
                 this.userId = crypto.randomUUID();
+                this.deviceId = crypto.randomUUID();
             }
 
             const deviceFingerprint = await generateDeviceFingerprint();
