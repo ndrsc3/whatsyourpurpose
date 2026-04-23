@@ -83,8 +83,8 @@ export class PurposeView {
             this.updateCallback!(newData);
         } catch (error) {
             console.error('Error generating purpose:', {
-                error: (error as Error).message,
-                stack: (error as Error).stack,
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
             });
             this.showError('Failed to generate purpose statement. Please try again.');
         } finally {

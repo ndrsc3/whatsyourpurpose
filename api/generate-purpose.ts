@@ -81,11 +81,8 @@ function getNextPromptIndex(currentIndex: number, totalPrompts: number = PROMPT_
     return (currentIndex + 1) % totalPrompts;
 }
 
-function formatPrompt(userData: PurposeRequestBody): string {
-    const nextIndex = getNextPromptIndex(userData.lastUsedPromptIndex ?? -1);
-    const promptTemplate = PROMPT_TEMPLATES[nextIndex];
-    userData.lastUsedPromptIndex = nextIndex;
-    return promptTemplate(userData);
+function formatPrompt(userData: PurposeRequestBody, promptIndex: number): string {
+    return PROMPT_TEMPLATES[promptIndex](userData);
 }
 
 async function handler(req: VercelRequest, res: VercelResponse): Promise<VercelResponse> {
@@ -103,6 +100,8 @@ async function handler(req: VercelRequest, res: VercelResponse): Promise<VercelR
             return res.status(400).json({ error: 'Missing required user data' });
         }
 
+        const promptIndex = getNextPromptIndex(userData.lastUsedPromptIndex ?? -1);
+
         const completion = await openai.chat.completions.create({
             model: 'gpt-4o',
             messages: [
@@ -113,7 +112,7 @@ async function handler(req: VercelRequest, res: VercelResponse): Promise<VercelR
                 },
                 {
                     role: 'user',
-                    content: formatPrompt(userData),
+                    content: formatPrompt(userData, promptIndex),
                 },
             ],
             max_tokens: 200,
@@ -127,17 +126,16 @@ async function handler(req: VercelRequest, res: VercelResponse): Promise<VercelR
 
         return res.status(200).json({
             purposeStatement: purposeStatement?.trim() ?? '',
-            promptIndex: userData.lastUsedPromptIndex,
+            promptIndex,
         });
     } catch (error) {
-        console.error('Purpose Generation Error:', {
-            message: (error as Error).message,
-            stack: (error as Error).stack,
-        });
+        const message = error instanceof Error ? error.message : String(error);
+        const stack = error instanceof Error ? error.stack : undefined;
+        console.error('Purpose Generation Error:', { message, stack });
 
         return res.status(500).json({
             error: 'Failed to generate purpose statement',
-            details: (error as Error).message,
+            details: message,
         });
     }
 }
