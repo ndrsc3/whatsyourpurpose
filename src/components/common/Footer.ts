@@ -35,7 +35,12 @@ export class Footer {
             </div>
         `;
 
-        document.getElementById('app')!.appendChild(footer);
+        const appRoot = document.getElementById('app');
+        if (!appRoot) {
+            console.warn('🟠 [Footer] #app element not found; footer not rendered');
+            return;
+        }
+        appRoot.appendChild(footer);
     }
 }
 

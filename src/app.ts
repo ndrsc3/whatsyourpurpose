@@ -1,8 +1,12 @@
-import ThemeToggle from './components/common/ThemeToggle.js';
+// Side-effect imports: these modules instantiate and self-register their DOM
+// components at module load (each exports `new Foo()` as default). They are
+// imported for the construction side effect only — no symbol is referenced.
+import './components/common/ThemeToggle.js';
+import './components/auth/UserSetup.js';
+import './components/auth/AccountRecovery.js';
+import './components/common/Footer.js';
+
 import NavigationPanel from './components/common/NavigationPanel.js';
-import UserSetup from './components/auth/UserSetup.js';
-import AccountRecovery from './components/auth/AccountRecovery.js';
-import Footer from './components/common/Footer.js';
 import ValuesSelection from './components/purpose/ValuesSelection.js';
 import StrengthsSelection from './components/purpose/StrengthsSelection.js';
 import QuestionsForm from './components/purpose/QuestionsForm.js';
@@ -184,12 +188,6 @@ export class App {
         }
     }
 }
-
-// Suppress unused import warnings — these are side-effect imports that register DOM components
-void ThemeToggle;
-void UserSetup;
-void AccountRecovery;
-void Footer;
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

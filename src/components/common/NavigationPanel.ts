@@ -141,7 +141,8 @@ export class NavigationPanel {
             return;
         }
 
-        this.updateCallback!({ ...this.data, currentSection: section, isNavigating: true });
+        if (!this.updateCallback || !this.data) return;
+        this.updateCallback({ ...this.data, currentSection: section, isNavigating: true });
         this.closePanel();
     }
 

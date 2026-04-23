@@ -81,7 +81,7 @@ export class UserDataStore {
 
     static getTheme(): 'dark' | 'light' {
         const data = this.getData();
-        return data.theme || 'dark';
+        return data.theme === 'light' ? 'light' : 'dark';
     }
 
     static clearData(): void {
