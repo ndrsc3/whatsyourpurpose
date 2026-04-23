@@ -75,16 +75,21 @@ export class AccountRecovery {
                 return;
             }
 
+            if (
+                typeof result.accessToken !== 'string' ||
+                typeof result.refreshToken !== 'string' ||
+                typeof result.userId !== 'string' ||
+                typeof result.username !== 'string'
+            ) {
+                throw new Error('Incomplete authentication data received');
+            }
+
             const authData: AuthData = {
                 accessToken: result.accessToken,
                 refreshToken: result.refreshToken,
                 userId: result.userId,
                 username: result.username,
             };
-
-            if (!authData.accessToken || !authData.refreshToken || !authData.userId || !authData.username) {
-                throw new Error('Incomplete authentication data received');
-            }
 
             localStorage.setItem('appWMP_auth', JSON.stringify(authData));
 

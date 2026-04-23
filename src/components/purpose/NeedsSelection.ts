@@ -105,9 +105,11 @@ class NeedsSelection extends SelectionComponent {
     }
 
     renderItems(): string {
+        if (!this.data) return '';
+
         const sdgItems = this.needsCategories['Sustainable Development Goals'];
         const worldlyNeeds = this.needsCategories['Worldly Needs'];
-        const currentNeeds = this.data?.needs ?? [];
+        const currentNeeds = this.data.needs ?? [];
 
         return `
             <div class="needs-container">

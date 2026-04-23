@@ -1,11 +1,16 @@
-import type { SelectionComponentConfig, UserData } from '../../types.js';
+import {
+    SELECTION_FIELD_MAP,
+    type SelectionComponentConfig,
+    type SelectionDataField,
+    type SelectionDataKey,
+    type UserData,
+} from '../../types.js';
 
 export class SelectionComponent {
     protected container: HTMLElement | null;
     protected itemClass: string;
-    protected dataKey: string;
-    // dataField is derived: 'value' → 'values'. Typed as keyof UserData via cast where needed.
-    protected dataField: string;
+    protected dataKey: SelectionDataKey;
+    protected dataField: SelectionDataField;
     protected nextSection: string;
     protected title: string;
     protected subtitle: string;
@@ -27,7 +32,7 @@ export class SelectionComponent {
         this.container = document.getElementById(containerId);
         this.itemClass = itemClass;
         this.dataKey = dataKey;
-        this.dataField = dataKey + 's'; // e.g. 'value' -> 'values'
+        this.dataField = SELECTION_FIELD_MAP[dataKey];
         this.nextSection = nextSection;
         this.title = title;
         this.subtitle = subtitle;
@@ -55,8 +60,7 @@ export class SelectionComponent {
 
     hasUnsavedChanges(): boolean {
         const selected = this.getSelected();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const saved: string[] = (this.data as any)?.[this.dataField] || [];
+        const saved: string[] = this.data?.[this.dataField] ?? [];
         if (selected.size !== saved.length) return true;
         return ![...selected].every((v) => saved.includes(v));
     }
@@ -72,8 +76,7 @@ export class SelectionComponent {
     }
 
     renderItems(): string {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const currentValues: string[] = (this.data as any)?.[this.dataField] ?? [];
+        const currentValues: string[] = this.data?.[this.dataField] ?? [];
         return `
             <div class="${this.dataField}-grid">
                 ${(this.items ?? [])
@@ -95,8 +98,7 @@ export class SelectionComponent {
 
         console.log(`🔵 [${this.constructor.name}] Rendering with data:`, this.data);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const currentValues: string[] = (this.data as any)[this.dataField] ?? [];
+        const currentValues: string[] = this.data[this.dataField] ?? [];
 
         this.container.innerHTML = `
             <div class="${this.dataField}-header">

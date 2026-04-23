@@ -30,10 +30,19 @@ export interface ModalOptions {
     buttons: ModalButton[];
 }
 
+export const SELECTION_FIELD_MAP = {
+    value: 'values',
+    strength: 'strengths',
+    need: 'needs',
+} as const satisfies Record<string, keyof UserData>;
+
+export type SelectionDataKey = keyof typeof SELECTION_FIELD_MAP;
+export type SelectionDataField = (typeof SELECTION_FIELD_MAP)[SelectionDataKey];
+
 export interface SelectionComponentConfig {
     containerId: string;
     itemClass: string;
-    dataKey: string;
+    dataKey: SelectionDataKey;
     nextSection: string;
     title: string;
     subtitle: string;
