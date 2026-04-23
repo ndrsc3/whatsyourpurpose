@@ -1,60 +1,29 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "src/**/*.css", "use": "@vercel/static" },
-    { "src": "src/**/*.js", "use": "@vercel/static" },
-    { "src": "public/**/*", "use": "@vercel/static" },
-    { "src": "api/*.js", "use": "@vercel/node" }
-  ],
-  "rewrites": [
-    {
-      "source": "/src/(.*)",
-      "destination": "/src/$1"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1.js"
-    },
-    {
-      "source": "/assets/(.*)",
-      "destination": "/public/assets/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/ws",
-      "headers": [
+    "outputDirectory": "dist",
+    "buildCommand": "npm run build",
+    "rewrites": [
         {
-          "key": "Upgrade",
-          "value": "websocket"
-        },
-        {
-          "key": "Connection",
-          "value": "Upgrade"
+            "source": "/api/(.*)",
+            "destination": "/api/$1"
         }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
+    ],
+    "headers": [
         {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Connection, Upgrade"
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "Access-Control-Allow-Origin",
+                    "value": "*"
+                },
+                {
+                    "key": "Access-Control-Allow-Methods",
+                    "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                    "key": "Access-Control-Allow-Headers",
+                    "value": "Content-Type, Authorization"
+                }
+            ]
         }
-      ]
-    }
-  ]
-} 
+    ]
+}
