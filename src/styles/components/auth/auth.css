@@ -1,9 +1,8 @@
 .setup-image {
-    max-width: 200px;
+    max-width: 320px;
     height: auto;
     display: block;
     margin: 0 auto 2rem auto;
-    border-radius: 8px;
 }
 
 /* Common Auth Container Styles */

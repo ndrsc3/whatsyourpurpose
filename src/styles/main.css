@@ -88,14 +88,6 @@ h1 {
     margin: 0;
 }
 
-.setup-image {
-    max-width: 200px;
-    height: auto;
-    display: block;
-    margin: 0 auto 2rem auto;
-    border-radius: 8px;
-}
-
 /* Common footer and action button styles */
 .view-footer {
     text-align: center;
