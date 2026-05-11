@@ -8,8 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install dependencies
 npm install
 
-# Local development (Vite dev server at localhost:5173)
-npm run dev
+# Local development — use vercel dev, NOT npm run dev
+vercel dev
 
 # Build (outputs to dist/)
 npm run build
@@ -29,9 +29,23 @@ npm run setup-admin
 
 There is no test suite.
 
+### Why `vercel dev` and not `npm run dev`
+
+`npm run dev` runs Vite only — it serves the SPA but does NOT execute the serverless functions in `api/`. Every `/api/*` call returns 404 under plain Vite. The Vercel CLI dev server (`vercel dev`) runs both the static frontend and the `api/*.ts` handlers on one port, matching production behavior.
+
+First-time setup on a machine:
+```bash
+npm i -g vercel
+vercel link              # links this directory to the deployed Vercel project
+vercel env pull .env.local   # pulls runtime secrets from Vercel into .env.local
+```
+
+After that, just `vercel dev` per session.
+
 ## Environment Variables
 
-Create a `.env` file with:
+`.env.local` (gitignored) holds the runtime secrets the API functions read. Pull them from the linked Vercel project with `vercel env pull .env.local` rather than maintaining them by hand. Required keys:
+
 ```
 KV_URL=
 KV_REST_API_URL=
