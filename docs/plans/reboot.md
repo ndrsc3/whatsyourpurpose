@@ -50,7 +50,7 @@ whatsyourpurpose/
 ├── scripts/
 │   └── setup-admin.js      # One-time KV admin setup, uses require-style imports
 ├── public/assets/          # Static images
-├── doc/                    # Architecture docs
+├── docs/                   # Architecture docs
 ├── package.json
 ├── vercel.json
 └── CLAUDE.md
