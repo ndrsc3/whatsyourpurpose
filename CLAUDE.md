@@ -83,6 +83,8 @@ This is a TypeScript single-page app built with Vite, deployed on Vercel with se
 
 **Storage**: Vercel KV (Redis). User records at `user:{userId}`. Username→userId mapping at `userIndex`. Purpose data at `user:{userId}:purpose`. Active users set at `activeUsers`.
 
+**Keep-alive:** `api/keepalive.ts` runs as a daily Vercel cron (`vercel.json` `crons`) and writes `keepalive:last`. Upstash archives a free database after a stretch with no commands, and an archived store 500s every KV route until restored by hand; this happened in 261022. If `CRON_SECRET` is set in the project, only Vercel's cron call is accepted.
+
 **Types**: `src/types.ts` for frontend types, `api/types.ts` for API types. These are separate files — API functions cannot import from `src/` at Vercel runtime.
 
 ### User Flow

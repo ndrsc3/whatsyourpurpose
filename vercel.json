@@ -1,6 +1,7 @@
 {
     "outputDirectory": "dist",
     "buildCommand": "npm run build",
+    "crons": [{ "path": "/api/keepalive", "schedule": "17 9 * * *" }],
     "rewrites": [
         {
             "source": "/api/(.*)",
