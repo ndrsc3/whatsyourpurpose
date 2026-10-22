@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # The job id is the required status check's name (`verify`) in the branch ruleset.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # npm run check = lint, test, build, smoke — the same script the pre-commit hook
+      # runs, so CI and local can't drift. smoke imports every api/ file under Node:
+      # the static checks can't see a function that 500s on load.
+      - run: npm run check

@@ -8,8 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install dependencies
 npm install
 
-# Local development — use vercel dev, NOT npm run dev
-vercel dev
+# Local development — checks the setup (dev-check), then runs vercel dev. NOT npm run dev
+npm run dev:full
+npm run dev:check        # the checks alone: packages, Vercel link, .env.local keys, Node
+
+# The gate: lint, test, build, smoke. CI runs exactly this; so does the pre-commit hook
+npm run check
 
 # Build (outputs to dist/)
 npm run build
@@ -27,7 +31,9 @@ npm run format
 npm run setup-admin
 ```
 
-There is no test suite.
+`npm test` runs `node:test` over `scripts/*.test.mjs` (the dev-check tests). `npm run smoke` compiles every `api/*.ts` as Vercel does and imports it under Node, catching a function that would 500 on load. `npm run typecheck` is not in `check` yet: `src/` has 8 existing errors (`docs/TASKS.md`).
+
+**Node 24, not 25.** Production runs 24.x (`.nvmrc`, `engines`). `jsonwebtoken`'s dependency `buffer-equal-constant-time` uses `SlowBuffer`, which Node 25 removed, so on Node 25 every auth function fails to load: `vercel dev` auth breaks and the pre-commit hook's smoke check fails. Use Node 24 locally.
 
 ### Why `vercel dev` and not `npm run dev`
 
@@ -35,26 +41,37 @@ There is no test suite.
 
 First-time setup on a machine:
 ```bash
-npm i -g vercel
-vercel link              # links this directory to the deployed Vercel project
-vercel env pull .env.local   # pulls runtime secrets from Vercel into .env.local
+npm install
+npx vercel link --yes --project app-whatsyourpurpose   # links this directory to the deployed Vercel project
+npx vercel env pull .env.local                         # pulls runtime secrets from Vercel into .env.local
 ```
 
-After that, just `vercel dev` per session.
+After that, just `npm run dev:full` per session.
 
 ## Environment Variables
 
-`.env.local` (gitignored) holds the runtime secrets the API functions read. Pull them from the linked Vercel project with `vercel env pull .env.local` rather than maintaining them by hand. Required keys:
+`.env.local` (gitignored) holds the runtime secrets the API functions read. Pull them from the linked Vercel project with `npx vercel env pull .env.local` rather than maintaining them by hand. The required keys are in `.env.example`, and `npm run dev:check` confirms each is set. `ADMIN_SECRET` is needed only for `npm run setup-admin`.
 
-```
-KV_URL=
-KV_REST_API_URL=
-KV_REST_API_TOKEN=
-KV_REST_API_READ_ONLY_TOKEN=
-JWT_SECRET=
-REFRESH_SECRET=
-OPENAI_API_KEY=
-```
+**There is no dev store.** Every environment, local and preview included, reads and writes the production KV, and every `generate-purpose` call spends real OpenAI credit. Don't run data-writing or generation tests against it. Add a second free Upstash database for Development + Preview before data-touching work (`docs/TASKS.md`).
+
+## Git Workflow
+
+**GitHub flow: every change is a short-lived branch and a PR into `main`. The PR's Vercel preview is the staging check.**
+
+- **`main`** = production. A GitHub ruleset enforces it: changes arrive only by PR, CI `verify` must pass, the branch must be up to date with `main`, merge commits only, and `main` can't be force-pushed or deleted.
+- **One branch per unit of work** (`feature/`, `fix/`, `chore/`), each in its own worktree: `git worktree add -b feature/X ../whatsyourpurpose-X origin/main`, then `ln -s ../whatsyourpurpose/node_modules node_modules` and `cp -R ../whatsyourpurpose/.vercel ../whatsyourpurpose/.env.local .` inside it. The main checkout stays on `main` and is never worked in.
+- **Agents never merge without the owner's approval in chat.** Agent and owner share one GitHub account, so "reviewed" means that approval plus green CI.
+
+1. **Commit.** The pre-commit hook runs `npm run check`. Never bypass it with `--no-verify`.
+2. **Before pushing, `git fetch` and rebase onto `origin/main`** if it moved. Surface conflicts; don't force-resolve.
+3. **Push and open a PR into `main`.** Keep branches short-lived.
+4. **CI `verify` and the Vercel preview run on the PR.** Check the change on the preview (previews are behind Vercel login).
+5. **If GitHub says the branch is out of date:** `gh pr update-branch <n>`, or rebase and push. CI reruns.
+6. **Owner approves in chat, then merge:** `gh pr merge <n> --merge`. GitHub deletes the remote branch.
+7. **Verify production:** `https://whatsyourpurpose.vercel.app` returns 200 and `/api/auth-token-verify` returns 401 without a token.
+8. **Clean up:** remove the worktree and local branch, and `git -C ../whatsyourpurpose pull --ff-only`.
+
+**When a second developer joins:** the ruleset moves to 1 required approval, and a dev KV store goes in first.
 
 ## Architecture
 

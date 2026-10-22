@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "engines": {
-        "node": "20.x"
+        "node": "24.x"
     },
     "scripts": {
         "dev": "vite",
@@ -11,7 +11,14 @@
         "preview": "vite preview",
         "lint": "eslint src/ api/ vite.config.ts",
         "format": "prettier --write src/ api/ scripts/ vite.config.ts *.json",
-        "setup-admin": "tsx scripts/setup-admin.ts"
+        "setup-admin": "tsx scripts/setup-admin.ts",
+        "typecheck": "tsc --noEmit",
+        "test": "node --test 'scripts/*.test.mjs'",
+        "smoke": "node scripts/smoke-api.mjs",
+        "check": "npm run lint && npm test && npm run build && npm run smoke",
+        "dev:check": "node scripts/dev-check.mjs",
+        "dev:full": "node scripts/dev-check.mjs && vercel dev",
+        "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && git config core.hooksPath .githooks || true"
     },
     "dependencies": {
         "@vercel/kv": "^0.2.4",

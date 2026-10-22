@@ -3,7 +3,7 @@
 <!-- [ ] todo  [~] in-progress  [x] done -->
 <!-- scope tags: [FEATURE] [DX] [BUG] [REVIEW] -->
 
-_Last touched: 260609_
+_Last touched: 261021_
 
 ---
 
@@ -15,7 +15,9 @@ _(none)_
 
 ## P2 — Next up
 
-_(none)_
+- [ ] [DX] Replace `jsonwebtoken` with `node:crypto` HS256 (or `jose`). Its dependency `buffer-equal-constant-time` uses `SlowBuffer`, which Node 25 removed: every auth function fails to load on Node 25+, and the latest `jws`/`jwa` still depend on it. Production is safe on 24.x until Vercel moves to a newer Node. Keep tokens compatible (HS256, same secrets, `exp` claims) so signed-in users stay signed in.
+- [ ] [DX] Make `src/` type-clean, then add `npm run typecheck` to `npm run check`. Today `tsc --noEmit` reports 8 errors: NavigationPanel's update-callback types in `app.ts` (`Partial<UserData>` vs `UserData`), two uninitialised fields, and `navigator.deviceMemory` in `deviceUtils.ts`.
+- [ ] [DX] Before data-touching work: add a dev KV store, a second free Upstash database scoped to Development + Preview. Today every environment shares production KV (D4 in `_underScore/work/plans/active/261020-vercel-app-dev-process.md`).
 
 ---
 

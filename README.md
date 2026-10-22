@@ -22,34 +22,33 @@ A web application for finding your purpose utilizing vanilla JavaScript and AI i
 ### Prerequisites
 1. [GitHub Account](https://github.com)
 2. [Vercel Account](https://vercel.com)
-3. [Node.js](https://nodejs.org) (v18 or higher)
+3. [Node.js](https://nodejs.org) 24 (`.nvmrc`; production runs 24.x). Node 25 can't load `jsonwebtoken`, so auth fails locally on it.
 
 ### Local Development
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/ndrsc3/whats-your-purpose.git
-cd whats-your-purpose
+git clone https://github.com/ndrsc3/whatsyourpurpose.git
+cd whatsyourpurpose
 ```
 
-2. Install dependencies:
+2. Install dependencies (also installs the pre-commit hook):
 ```bash
 npm install
 ```
-3. Create a `.env` file:
-```
-KV_URL=your_kv_url_here
-KV_REST_API_URL=your_kv_rest_api_url_here
-KV_REST_API_TOKEN=your_kv_rest_api_token_here
-KV_REST_API_READ_ONLY_TOKEN=your_kv_read_only_token_here
-```
 
-4. Start the development server:
+3. Link the Vercel project and pull its env into `.env.local` (keys listed in `.env.example`):
 ```bash
-vercel dev
+npx vercel link --yes --project app-whatsyourpurpose
+npx vercel env pull .env.local
 ```
 
-4. Visit http://localhost:3000 in your browser
+4. Start the development server (checks the setup first, then runs `vercel dev`):
+```bash
+npm run dev:full
+```
+
+5. Visit http://localhost:3000 in your browser
 
 ### Deploying to Vercel
 
