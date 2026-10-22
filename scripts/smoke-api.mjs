@@ -18,10 +18,11 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, '.smoke');
 
-// Vercel compiles api/ to the module format package.json declares: ESM with "type": "module",
-// CommonJS without it. Mirror that, and pin it in .smoke/package.json: Node 22+ auto-detects
-// ESM in .js files with no "type" field, so a modern local Node would load what Vercel's
-// runtime rejects.
+// Vercel strips the types and keeps the import syntax, whatever package.json declares, so
+// without "type": "module" every function dies on its first `import` (a preview here did,
+// once engines moved off 20.x). Mirror that, and pin the declared type in .smoke/package.json:
+// Node 22+ auto-detects ESM in .js files with no "type" field, so a modern local Node would
+// load what Vercel's runtime rejects.
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const type = pkg.type === 'module' ? 'module' : 'commonjs';
 
@@ -39,8 +40,7 @@ mkdirSync(outDir);
 writeFileSync(join(outDir, 'package.json'), JSON.stringify({ type }));
 for (const f of sources) {
     const path = join(root, 'api', f);
-    const format = type === 'module' ? 'esm' : 'cjs';
-    const { code } = await transformWithEsbuild(readFileSync(path, 'utf8'), path, { loader: 'ts', format });
+    const { code } = await transformWithEsbuild(readFileSync(path, 'utf8'), path, { loader: 'ts', format: 'esm' });
     writeFileSync(join(outDir, f.replace(/\.ts$/, '.js')), code);
 }
 
@@ -48,8 +48,7 @@ let failed = 0;
 for (const name of sources.map((f) => f.replace(/\.ts$/, '.js')).sort()) {
     try {
         const mod = await import(pathToFileURL(join(outDir, name)).href);
-        // CommonJS output nests the handler: import() returns module.exports as `default`.
-        const handler = type === 'module' ? mod.default : mod.default?.default;
+        const handler = mod.default;
         if (typeof handler !== 'function') {
             // Shared modules (helpers, types) have no handler; they still had to load.
             console.log(`✓ ${name} (module, no handler)`);
