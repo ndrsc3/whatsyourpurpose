@@ -1,7 +1,7 @@
 import { kv } from '@vercel/kv';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { verifyRefreshToken, generateAccessToken } from './auth-jwt.js';
-import type { UserMetadata } from './types.js';
+import { verifyRefreshToken, generateAccessToken } from '../lib/auth-jwt.js';
+import type { UserMetadata } from '../lib/types.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<VercelResponse> {
     console.group('🔵 [API] Token Refresh');

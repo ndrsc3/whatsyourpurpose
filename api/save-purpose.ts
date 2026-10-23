@@ -1,7 +1,7 @@
 import { kv } from '@vercel/kv';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { verifyUserToken } from './auth-middleware.js';
-import type { AuthenticatedRequest, UserMetadata, PurposeData } from './types.js';
+import { verifyUserToken } from '../lib/auth-middleware.js';
+import type { AuthenticatedRequest, UserMetadata, PurposeData } from '../lib/types.js';
 
 async function handler(req: VercelRequest, res: VercelResponse): Promise<VercelResponse> {
     console.group('🔵 [API] Save Purpose');

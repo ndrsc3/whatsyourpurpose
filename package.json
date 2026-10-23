@@ -10,7 +10,7 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "lint": "eslint src/ api/ vite.config.ts",
+        "lint": "eslint src/ api/ lib/ vite.config.ts",
         "format": "prettier --write src/ api/ scripts/ vite.config.ts *.json",
         "setup-admin": "tsx scripts/setup-admin.ts",
         "typecheck": "tsc --noEmit",
