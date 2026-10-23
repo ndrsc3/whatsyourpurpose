@@ -79,13 +79,13 @@ This is a TypeScript single-page app built with Vite, deployed on Vercel with se
 
 **Frontend** (`src/`): No framework. TypeScript source compiled by Vite. Entry point: `index.html` → `/src/app.ts`.
 
-**Backend** (`api/`): Vercel serverless functions (Node.js). Each `api/*.ts` file becomes an endpoint, compiled automatically by Vercel. Uses `@vercel/node` types. All files use ES module import/export syntax.
+**Backend** (`api/`): Vercel serverless functions (Node.js). Each `api/*.ts` file becomes an endpoint, compiled automatically by Vercel. Uses `@vercel/node` types. All files use ES module import/export syntax. **`api/` holds handlers only:** every file there is a public endpoint, so a helper left there 500s on every call. Shared server code (`auth-helpers`, `auth-jwt`, `auth-middleware`, `types`) lives in `lib/`, imported as `../lib/x.js`; Vercel bundles what a handler imports. `npm run smoke` fails any `api/` file without a default handler.
 
 **Storage**: Vercel KV (Redis). User records at `user:{userId}`. Username→userId mapping at `userIndex`. Purpose data at `user:{userId}:purpose`. Active users set at `activeUsers`.
 
 **Keep-alive:** `api/keepalive.ts` runs as a daily Vercel cron (`vercel.json` `crons`) and writes `keepalive:last`. Upstash archives a free database after a stretch with no commands, and an archived store 500s every KV route until restored by hand; this happened in 261022. If `CRON_SECRET` is set in the project, only Vercel's cron call is accepted.
 
-**Types**: `src/types.ts` for frontend types, `api/types.ts` for API types. These are separate files — API functions cannot import from `src/` at Vercel runtime.
+**Types**: `src/types.ts` for frontend types, `lib/types.ts` for API types. These are separate files — API functions cannot import from `src/` at Vercel runtime.
 
 ### User Flow
 
@@ -107,7 +107,7 @@ User progress is stored in `localStorage` under `appWMP_userData` via `UserDataS
 
 - JWT access tokens (24h) + refresh tokens (30d), signed with separate secrets
 - `fetchWithAuth` (`src/utils/authUtils.ts`) handles automatic token refresh on 401 with `code: TOKEN_EXPIRED`
-- `verifyUserToken` middleware in `api/auth-middleware.ts` wraps protected handlers; attaches decoded token to `req.user`
+- `verifyUserToken` middleware in `lib/auth-middleware.ts` wraps protected handlers; attaches decoded token to `req.user`
 - Device fingerprinting tracks trusted devices per user
 
 ### Component Pattern

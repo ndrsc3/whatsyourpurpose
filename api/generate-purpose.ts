@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { verifyUserToken } from './auth-middleware.js';
-import type { AuthenticatedRequest } from './types.js';
+import { verifyUserToken } from '../lib/auth-middleware.js';
+import type { AuthenticatedRequest } from '../lib/types.js';
 
 interface PurposeRequestBody {
     values: string[];

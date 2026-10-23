@@ -1,18 +1,24 @@
-// Runtime-load gate for the serverless functions: compile api/ as written, then actually
-// import() each entrypoint under Node. Static checks never load a function under the
-// runtime that serves it, so they stay green while every /api/* route 500s.
+// Runtime-load gate for the serverless functions: compile api/ (and the lib/ it imports) as
+// written, then actually import() each entrypoint under Node. Static checks never load a
+// function under the runtime that serves it, so they stay green while every /api/* route 500s.
 //
-// Ported from squatWithMe via bananaRodeo (_underScore/knowledge/vercel-api-runtime-gate.md),
-// where it caught two shipped failures: package.json missing "type": "module", and
-// extensionless relative imports (Node's ESM resolver needs `./storage.js`).
+// Every file in api/ deploys as a public function, so each must export a default handler.
+// A helper or test left there is an endpoint that 500s (banana.rodeo's /api/storage did,
+// 261022). Shared server code and its tests live in lib/, which never deploys, or under an
+// `_`-prefixed path such as api/_lib/, which Vercel skips (squatWithMe's /api/_lib/db is a 404).
 //
-// Compiles with Vite's esbuild transform (transpile only, no type check, no bundling), as Vercel does:
-// api/ is not type-clean, and a type error is not what 500s a route.
+// From _underScore/knowledge/vercel-app-kit (why: knowledge/vercel-api-runtime-gate.md). It has
+// caught shipped failures: package.json missing "type": "module", and extensionless relative
+// imports (Node's ESM resolver needs `./storage.js`).
+//
+// Compiles with Vite's own transform (transpile only, no type check, no bundling), as Vercel does:
+// a type error is not what 500s a route. Vite 8 has transformWithOxc and deprecates
+// transformWithEsbuild; Vite 6 has only esbuild. Proven on both.
 //
 // Usage: npm run smoke
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { transformWithEsbuild } from 'vite';
-import { dirname, join, resolve } from 'node:path';
+import * as vite from 'vite';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -28,30 +34,49 @@ const type = pkg.type === 'module' ? 'module' : 'commonjs';
 
 // Some modules check their env at load (auth-jwt.ts throws without its secrets). This gate
 // tests loading, not behaviour, so every key in .env.example gets a placeholder if unset.
+// A *_URL key gets a URL-shaped one: clients like Redis.fromEnv() validate it at load.
 const example = join(root, '.env.example');
 for (const line of existsSync(example) ? readFileSync(example, 'utf8').split('\n') : []) {
     const key = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=/)?.[1];
-    if (key) process.env[key] ||= 'smoke-placeholder';
+    if (key) process.env[key] ||= key.endsWith('_URL') ? 'https://smoke-placeholder.invalid' : 'smoke-placeholder';
 }
 
-const sources = readdirSync(join(root, 'api')).filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'));
+/** Every .ts file under dir, as paths relative to root. */
+const tsFiles = (dir) =>
+    existsSync(join(root, dir))
+        ? readdirSync(join(root, dir), { recursive: true })
+              .filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
+              .map((f) => join(dir, f))
+        : [];
+const isPrivate = (f) => f.split(/[\\/]/).some((part) => part.startsWith('_'));
+const functions = tsFiles('api').filter((f) => !isPrivate(f)).toSorted();
+// Private modules are compiled so functions can import them; their tests run under the test
+// runner, never in production, so those aren't.
+const modules = [...tsFiles('api').filter(isPrivate), ...tsFiles('lib')].filter((f) => !f.endsWith('.test.ts'));
+const sources = [...functions, ...modules];
+
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir);
 writeFileSync(join(outDir, 'package.json'), JSON.stringify({ type }));
 for (const f of sources) {
-    const path = join(root, 'api', f);
-    const { code } = await transformWithEsbuild(readFileSync(path, 'utf8'), path, { loader: 'ts', format: 'esm' });
-    writeFileSync(join(outDir, f.replace(/\.ts$/, '.js')), code);
+    const path = join(root, f);
+    const source = readFileSync(path, 'utf8');
+    const { code } = vite.transformWithOxc
+        ? await vite.transformWithOxc(source, path, { lang: 'ts' })
+        : await vite.transformWithEsbuild(source, path, { loader: 'ts', format: 'esm' });
+    const out = join(outDir, f.replace(/\.ts$/, '.js'));
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, code);
 }
 
 let failed = 0;
-for (const name of sources.map((f) => f.replace(/\.ts$/, '.js')).sort()) {
+for (const f of functions) {
+    const name = relative('api', f).replace(/\.ts$/, '.js');
     try {
-        const mod = await import(pathToFileURL(join(outDir, name)).href);
-        const handler = mod.default;
-        if (typeof handler !== 'function') {
-            // Shared modules (helpers, types) have no handler; they still had to load.
-            console.log(`✓ ${name} (module, no handler)`);
+        const mod = await import(pathToFileURL(join(outDir, f.replace(/\.ts$/, '.js'))).href);
+        if (typeof mod.default !== 'function') {
+            console.error(`✗ ${name} — no default handler: it deploys as an endpoint that 500s. Move it to lib/ (or api/_lib/)`);
+            failed++;
             continue;
         }
         console.log(`✓ ${name}`);
@@ -62,7 +87,7 @@ for (const name of sources.map((f) => f.replace(/\.ts$/, '.js')).sort()) {
 }
 rmSync(outDir, { recursive: true, force: true });
 
-console.log(`\n${sources.length - failed}/${sources.length} api files load under the Node runtime`);
+console.log(`\n${functions.length - failed}/${functions.length} api functions load under the Node runtime`);
 if (failed > 0) {
     console.error('✗ smoke FAILED — these would 500 in production');
     process.exit(1);

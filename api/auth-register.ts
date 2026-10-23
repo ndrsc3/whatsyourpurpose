@@ -1,7 +1,7 @@
 import { kv } from '@vercel/kv';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { hashAnswer, generateAuthResponse, createDeviceEntry } from './auth-helpers.js';
-import type { UserMetadata } from './types.js';
+import { hashAnswer, generateAuthResponse, createDeviceEntry } from '../lib/auth-helpers.js';
+import type { UserMetadata } from '../lib/types.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<VercelResponse> {
     console.group('🔵 [API] Save User');
