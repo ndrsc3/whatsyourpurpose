@@ -59,7 +59,8 @@ After that, just `npm run dev:full` per session.
 **GitHub flow: every change is a short-lived branch and a PR into `main`. The PR's Vercel preview is the staging check.**
 
 - **`main`** = production. A GitHub ruleset enforces it: changes arrive only by PR, CI `verify` must pass, the branch must be up to date with `main`, merge commits only, and `main` can't be force-pushed or deleted.
-- **One branch per unit of work** (`feature/`, `fix/`, `chore/`), each in its own worktree: `git worktree add -b feature/X ../whatsyourpurpose-X origin/main`, then `ln -s ../whatsyourpurpose/node_modules node_modules` and `cp -R ../whatsyourpurpose/.vercel ../whatsyourpurpose/.env.local .` inside it. The main checkout stays on `main` and is never worked in.
+- **One branch per unit of work** (`feature/`, `fix/`, `chore/`), each in its own worktree: `git worktree add -b feature/X ../whatsyourpurpose-X origin/main`, then `ln -s ../whatsyourpurpose/node_modules node_modules` and `cp -R ../whatsyourpurpose/.vercel ../whatsyourpurpose/.env.local .` inside it. The main checkout stays on `main` and is worked in only for docs-only commits.
+- **Docs-only changes skip the PR.** A commit that touches only Markdown under `docs/` (task board, plans, explorations, decisions) or the root `README.md` / `CLAUDE.md` goes straight to `main`: in the main checkout, `git pull --ff-only`, edit, commit by pathspec (the hook still runs `check`), and the owner pushes. The ruleset's admin bypass allows it. Anything else takes a branch and a PR.
 - **Agents never merge without the owner's approval in chat.** Agent and owner share one GitHub account, so "reviewed" means that approval plus green CI.
 
 1. **Commit.** The pre-commit hook runs `npm run check`. Never bypass it with `--no-verify`.
